@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: 'PP Mori';
+    src: url(../fonts/PPMori-Regular.otf) format('opentype');
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'PP Mori';
+    src: url(../fonts/PPMori-SemiBold.otf) format('opentype');
+    font-weight: 600;
+}
+
+body {
+    font-family: 'PP Mori', sans-serif;
+}

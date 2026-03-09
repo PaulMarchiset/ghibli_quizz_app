@@ -1,0 +1,72 @@
+<script setup lang="ts">
+defineProps<{
+  rank: number
+  name: string
+  score: number
+}>()
+</script>
+
+<template>
+  <div class="leaderboard-item">
+    <div class="left-section">
+      <!-- Rank circle -->
+      <div class="rank-circle">
+        <span class="rank-number">{{ rank }}</span>
+      </div>
+      
+      <!-- Name -->
+      <span class="name">{{ name }}</span>
+    </div>
+    
+    <!-- Score -->
+    <span class="score">{{ score }} pts</span>
+  </div>
+</template>
+
+<style scoped>
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border-radius: 100px;
+  padding: 0.5rem 1.5rem 0.5rem 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 300px;
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rank-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #facc15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rank-number {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #000;
+}
+
+.name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000;
+}
+
+.score {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+</style>

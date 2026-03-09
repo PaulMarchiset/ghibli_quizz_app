@@ -1,0 +1,35 @@
+import { allMovies } from '../../api/Movies';
+import { allCharacters } from '../../api/Characters';
+import { type GhibliCharacter, type GhibliMovie } from '../../types/ghibli';
+import { pickRandom, shuffleArray } from '../utils/random';
+
+export async function characterFromMovie() {
+    const movies = await allMovies();
+    const characters = await allCharacters();
+
+    const movieList: GhibliMovie[] = movies.value;
+    const characterList: GhibliCharacter[] = characters.value;
+
+    if (movieList.length === 0 || characterList.length === 0) return null;
+
+    const oneMovie = pickRandom(movieList);
+    if (!oneMovie) return null;
+
+    const movieUrl = oneMovie.url;
+
+    const movieCharacters = characterList.filter((c) => c.films.includes(movieUrl));
+
+    if (movieCharacters.length === 0) return null;
+
+    const correctAnswer = pickRandom(movieCharacters);
+    if (!correctAnswer) return null;
+
+    const movieCharacterIds = new Set(movieCharacters.map((c) => c.id));
+    const wrongAnswer = shuffleArray(
+        characterList.filter((c) => !movieCharacterIds.has(c.id))
+    ).slice(0, 3);
+
+    if (wrongAnswer.length < 1) return null;
+
+    return { oneMovie, correctAnswer, wrongAnswer };
+}
