@@ -7,8 +7,8 @@ export async function characterSpecies() {
     const characters = await allCharacters();
     const species = await allSpecies();
 
-    const characterList: GhibliCharacter[] = characters.value;
-    const speciesList: GhibliSpecies[] = species.value;
+    const characterList: GhibliCharacter[] = characters;
+    const speciesList: GhibliSpecies[] = species;
     const usableCharacters = characterList.filter(
         (c) => typeof c.species === 'string' && c.species.length > 0
     );

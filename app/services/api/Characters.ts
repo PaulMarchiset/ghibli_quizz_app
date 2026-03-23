@@ -1,5 +1,5 @@
-import { ref } from "vue";
 import { type GhibliCharacter, isGhibliCharacter } from "../types/ghibli";
+import { fetchJsonOrFallback } from "./api";
 
 // const config = useRuntimeConfig();
 const BASE_URL = "https://ghibliapi.vercel.app";
@@ -36,37 +36,33 @@ function normalizeName(value: string): string {
 }
 
 async function characterImageById(jikanCharacterId: number): Promise<string | null> {
-    const response = await fetch(`${CHARACTER_URL}/${jikanCharacterId}/full`);
-    if (!response.ok) return null;
+    const data = await fetchJsonOrFallback<JikanCharacterByIdResponse, null>(
+        `${CHARACTER_URL}/${jikanCharacterId}/full`,
+        { context: 'characterImageById', fallback: null }
+    );
 
-    const data = (await response.json()) as JikanCharacterByIdResponse;
     return data?.data?.images?.jpg?.image_url ?? null;
 }
 
-export async function allCharacters() {
-    const collection = ref<GhibliCharacter[]>([]);
-    console.log("Fetching from API URL:", BASE_URL);
+export async function allCharacters(): Promise<GhibliCharacter[]> {
+    const data = await fetchJsonOrFallback<unknown, []>(`${BASE_URL}/people`, {
+        context: 'allCharacters',
+        fallback: []
+    });
 
-    const response = await fetch(`${BASE_URL}/people`);
-    const data = await response.json();
-    collection.value = Array.isArray(data) ? data.filter(isGhibliCharacter) : [];
-    // console.log("[characters] Fetched collection:", collection.value);
-    return collection;
+    return Array.isArray(data) ? data.filter(isGhibliCharacter) : [];
 }
 
-export async function characterByID(characterId: string) {
-    const collection = ref<GhibliCharacter | null>(null);
-    console.log("Fetching from API URL:", BASE_URL);
+export async function characterByID(characterId: string): Promise<GhibliCharacter | null> {
+    const data = await fetchJsonOrFallback<unknown, null>(`${BASE_URL}/people/${characterId}`, {
+        context: 'characterByID',
+        fallback: null
+    });
 
-    const response = await fetch(`${BASE_URL}/people/${characterId}`);
-    const data = await response.json();
-    collection.value = isGhibliCharacter(data) ? data : null;
-    console.log("Fetched collection:", collection.value);
-    return collection;
+    return isGhibliCharacter(data) ? data : null;
 }
 
 export async function characterImageByName(characterName: string, characterSpecies?: string) {
-    const collection = ref<JikanCharacterSearchResponse | null>(null);
     let fallbackImage: string | null = null;
 
     const q = normalizeName(characterName);
@@ -83,14 +79,17 @@ export async function characterImageByName(characterName: string, characterSpeci
 
     console.log("Fetching from Character API URL:", CHARACTER_URL);
 
-    const response = await fetch(
-        `${CHARACTER_URL}?q=${encodeURIComponent(characterName)}`
+    const payload = await fetchJsonOrFallback<JikanCharacterSearchResponse, null>(
+        `${CHARACTER_URL}?q=${encodeURIComponent(characterName)}`,
+        { context: 'characterImageByName', fallback: null }
     );
-    collection.value = (await response.json()) as JikanCharacterSearchResponse;
 
-    console.log("Fetched character image collection:", collection.value);
+    if (!payload) {
+        return null;
+    }
 
-    const results = collection.value?.data ?? [];
+    const results = payload.data ?? [];
+
     if (results.length === 0) {
         return null;
     }

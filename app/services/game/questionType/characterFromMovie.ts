@@ -7,8 +7,8 @@ export async function characterFromMovie() {
     const movies = await allMovies();
     const characters = await allCharacters();
 
-    const movieList: GhibliMovie[] = movies.value;
-    const characterList: GhibliCharacter[] = characters.value;
+    const movieList: GhibliMovie[] = movies;
+    const characterList: GhibliCharacter[] = characters;
 
     if (movieList.length === 0 || characterList.length === 0) return null;
 

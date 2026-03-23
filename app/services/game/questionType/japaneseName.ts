@@ -14,7 +14,7 @@ function movieDisplayTitle(movie?: GhibliMovie | null) {
 export async function japaneseName() {
     const movies = await allMovies();
 
-    const list: GhibliMovie[] = movies.value;
+    const list: GhibliMovie[] = movies;
     const usable = list.filter((m) => movieDisplayTitle(m).length > 0);
 
     if (usable.length === 0) {

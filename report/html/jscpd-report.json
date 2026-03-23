@@ -1,0 +1,630 @@
+{
+  "statistics": {
+    "detectionDate": "2026-03-23T16:30:23.798Z",
+    "formats": {
+      "typescript": {
+        "sources": {
+          "app/services/game/utils/random.ts": {
+            "lines": 12,
+            "tokens": 223,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/services/game/questionType/japaneseName.ts": {
+            "lines": 53,
+            "tokens": 547,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/services/game/questionType/findCharacter.ts": {
+            "lines": 51,
+            "tokens": 569,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/services/game/questionType/characterSpecies.ts": {
+            "lines": 55,
+            "tokens": 550,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/services/game/questionType/characterFromMovie.ts": {
+            "lines": 34,
+            "tokens": 421,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/services/types/ghibli.ts": {
+            "lines": 59,
+            "tokens": 595,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/services/game/quizGame.ts": {
+            "lines": 189,
+            "tokens": 2040,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/services/api/Species.ts": {
+            "lines": 12,
+            "tokens": 146,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/services/api/Movies.ts": {
+            "lines": 22,
+            "tokens": 253,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/services/api/Characters.ts": {
+            "lines": 133,
+            "tokens": 1356,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/services/api/api.ts": {
+            "lines": 24,
+            "tokens": 251,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/types/nuxt-socket.d.ts": {
+            "lines": 14,
+            "tokens": 94,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/plugins/socket.ts": {
+            "lines": 23,
+            "tokens": 194,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/composables/useScoreHistory.ts": {
+            "lines": 89,
+            "tokens": 823,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/composables/useGameSettings.ts": {
+            "lines": 45,
+            "tokens": 378,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/composables/useGameRoom.ts": {
+            "lines": 203,
+            "tokens": 2135,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "server/index.ts": {
+            "lines": 224,
+            "tokens": 3159,
+            "sources": 1,
+            "clones": 6,
+            "duplicatedLines": 36,
+            "duplicatedTokens": 804,
+            "percentage": 16.07,
+            "percentageTokens": 25.45,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "nuxt.config.ts": {
+            "lines": 39,
+            "tokens": 253,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "eslint.config.ts": {
+            "lines": 12,
+            "tokens": 182,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 1293,
+          "tokens": 14169,
+          "sources": 19,
+          "clones": 3,
+          "duplicatedLines": 18,
+          "duplicatedTokens": 402,
+          "percentage": 1.39,
+          "percentageTokens": 2.84,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "markup": {
+        "sources": {
+          "app/components/Icons/SettingsIcon.vue": {
+            "lines": 9,
+            "tokens": 123,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/pages/index.vue": {
+            "lines": 19,
+            "tokens": 170,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/pages/history.vue": {
+            "lines": 77,
+            "tokens": 632,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/pages/game.vue": {
+            "lines": 40,
+            "tokens": 310,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/components/WebSocket.vue": {
+            "lines": 43,
+            "tokens": 351,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/components/ScorePanel.vue": {
+            "lines": 85,
+            "tokens": 542,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/components/QuizCard.vue": {
+            "lines": 125,
+            "tokens": 790,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/components/GameTimer.vue": {
+            "lines": 120,
+            "tokens": 851,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/components/GameSettings.vue": {
+            "lines": 165,
+            "tokens": 1218,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/components/GameRoomLobby.vue": {
+            "lines": 189,
+            "tokens": 1399,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/components/GameBoard.vue": {
+            "lines": 340,
+            "tokens": 2570,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "app/app.vue": {
+            "lines": 4,
+            "tokens": 22,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 1216,
+          "tokens": 8978,
+          "sources": 12,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "css": {
+        "sources": {
+          "app/assets/css/main.css": {
+            "lines": 16,
+            "tokens": 102,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 16,
+          "tokens": 102,
+          "sources": 1,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "json": {
+        "sources": {
+          "tsconfig.json": {
+            "lines": 17,
+            "tokens": 77,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "package.json": {
+            "lines": 33,
+            "tokens": 210,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 50,
+          "tokens": 287,
+          "sources": 2,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "markdown": {
+        "sources": {
+          "README.md": {
+            "lines": 72,
+            "tokens": 202,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 72,
+          "tokens": 202,
+          "sources": 1,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      }
+    },
+    "total": {
+      "lines": 2647,
+      "tokens": 23738,
+      "sources": 35,
+      "clones": 3,
+      "duplicatedLines": 18,
+      "duplicatedTokens": 402,
+      "percentage": 0.68,
+      "percentageTokens": 1.69,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    }
+  },
+  "duplicates": [
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": "= {}, cb?: Ack) => {\r\n    const roomCode = payload.roomCode?.trim().toUpperCase()\r\n    if (!roomCode) return cb?.({ ok: false, message: 'Room code is required' })\r\n\r\n    const room = rooms.get(roomCode)\r\n    if (!room) return cb?.({ ok: false, message: 'Room not found' })\r\n    if (room.hostId",
+      "tokens": 0,
+      "firstFile": {
+        "name": "server\\index.ts",
+        "start": 128,
+        "end": 134,
+        "startLoc": {
+          "line": 128,
+          "column": 2,
+          "position": 1693
+        },
+        "endLoc": {
+          "line": 134,
+          "column": 7,
+          "position": 1817
+        }
+      },
+      "secondFile": {
+        "name": "server\\index.ts",
+        "start": 110,
+        "end": 116,
+        "startLoc": {
+          "line": 110,
+          "column": 2,
+          "position": 1383
+        },
+        "endLoc": {
+          "line": 116,
+          "column": 6,
+          "position": 1507
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": "= {}, cb?: Ack) => {\r\n    const roomCode = payload.roomCode?.trim().toUpperCase()\r\n    if (!roomCode) return cb?.({ ok: false, message: 'Room code is required' })\r\n\r\n    const room = rooms.get(roomCode)\r\n    if (!room) return cb?.({ ok: false, message: 'Room not found' })\r\n    if (room.hostId !== socket.id) return cb?.({ ok: false, message: 'Only host can publish questions'",
+      "tokens": 0,
+      "firstFile": {
+        "name": "server\\index.ts",
+        "start": 147,
+        "end": 153,
+        "startLoc": {
+          "line": 147,
+          "column": 2,
+          "position": 1982
+        },
+        "endLoc": {
+          "line": 153,
+          "column": 34,
+          "position": 2132
+        }
+      },
+      "secondFile": {
+        "name": "server\\index.ts",
+        "start": 110,
+        "end": 134,
+        "startLoc": {
+          "line": 110,
+          "column": 2,
+          "position": 1383
+        },
+        "endLoc": {
+          "line": 134,
+          "column": 22,
+          "position": 1843
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": "= {}, cb?: Ack) => {\r\n    const roomCode = payload.roomCode?.trim().toUpperCase()\r\n    if (!roomCode) return cb?.({ ok: false, message: 'Room code is required' })\r\n\r\n    const room = rooms.get(roomCode)\r\n    if (!room) return cb?.({ ok: false, message: 'Room not found' })\r\n    if (room.phase !== 'playing'",
+      "tokens": 0,
+      "firstFile": {
+        "name": "server\\index.ts",
+        "start": 170,
+        "end": 176,
+        "startLoc": {
+          "line": 170,
+          "column": 2,
+          "position": 2380
+        },
+        "endLoc": {
+          "line": 176,
+          "column": 10,
+          "position": 2508
+        }
+      },
+      "secondFile": {
+        "name": "server\\index.ts",
+        "start": 110,
+        "end": 116,
+        "startLoc": {
+          "line": 110,
+          "column": 2,
+          "position": 1383
+        },
+        "endLoc": {
+          "line": 116,
+          "column": 8,
+          "position": 1511
+        }
+      }
+    }
+  ],
+  "filename": "C:\\Users\\paulm\\AppData\\Local\\npm-cache\\_npx\\652ead47bf63fe99\\node_modules\\@jscpd\\html-reporter\\dist\\templates\\main.pug"
+}

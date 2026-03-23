@@ -17,10 +17,13 @@ export default defineNuxtConfig({
       websocket: true
     }
   },
-  plugins: ["~/plugins/socket.ts",],
+  plugins: ['~/plugins/socket.ts'],
   runtimeConfig: {
     apiUrl: "https://ghibliapi.vercel.app/",
     characterApiUrl: "https://api.jikan.moe/v4/characters",
+    public: {
+      socketUrl: 'http://localhost:4001'
+    }
   },
   app: {
     head: {

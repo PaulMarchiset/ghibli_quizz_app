@@ -1,15 +1,24 @@
-import { defineNuxtPlugin } from "#app";
-import { io } from "socket.io-client";
+import { defineNuxtPlugin, useRuntimeConfig } from '#app'
+import { io, type Socket } from 'socket.io-client'
 
-export default defineNuxtPlugin((nuxtApp) => {
-  // Ensure we only initialize the WebSocket client on the client-side
-  if (process.client) {
-    const socket = io("http://localhost:3000", {
-      transports: ["websocket"], // Ensure WebSocket is used
-    });
-    console.log("WebSocket client initialized.");
-
-    // Inject `socket` so you can access it with `nuxtApp.$socket` in your app
-    nuxtApp.provide("socket", socket);
+export default defineNuxtPlugin(() => {
+  if (!import.meta.client) {
+    return {
+      provide: {
+        socket: null as Socket | null
+      }
+    }
   }
-});
+
+  const config = useRuntimeConfig()
+  const socketUrl = config.public.socketUrl || 'http://localhost:4001'
+  const socket = io(socketUrl, {
+    transports: ['websocket']
+  })
+
+  return {
+    provide: {
+      socket
+    }
+  }
+})

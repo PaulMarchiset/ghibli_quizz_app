@@ -1,43 +1,23 @@
 // const config = useRuntimeConfig();
-import { ref } from 'vue';
 import { type GhibliMovie, isGhibliMovie } from '../types/ghibli';
+import { fetchJsonOrFallback } from './api';
 
 const BASE_URL = "https://ghibliapi.vercel.app"; 
 
-export async function allMovies() {
-    const collection = ref<GhibliMovie[]>([]);
+export async function allMovies(): Promise<GhibliMovie[]> {
+    const data = await fetchJsonOrFallback<unknown, []>(`${BASE_URL}/films`, {
+        context: 'allMovies',
+        fallback: []
+    });
 
-    try {
-        const response = await fetch(`${BASE_URL}/films`);
-        if (!response.ok) {
-            console.error(`[allMovies] HTTP ${response.status} ${response.statusText}`);
-            return collection;
-        }
-
-        const data = await response.json();
-        collection.value = Array.isArray(data) ? data.filter(isGhibliMovie) : [];
-        return collection;
-    } catch (error) {
-        console.error('[allMovies] Fetch failed', error);
-        return collection;
-    }
+    return Array.isArray(data) ? data.filter(isGhibliMovie) : [];
 }
 
-export async function movieByID(movieId: string) {
-    const collection = ref<GhibliMovie | null>(null);
+export async function movieByID(movieId: string): Promise<GhibliMovie | null> {
+    const data = await fetchJsonOrFallback<unknown, null>(`${BASE_URL}/films/${movieId}`, {
+        context: 'movieByID',
+        fallback: null
+    });
 
-    try {
-        const response = await fetch(`${BASE_URL}/films/${movieId}`);
-        if (!response.ok) {
-            console.error(`[movieByID] HTTP ${response.status} ${response.statusText}`);
-            return collection;
-        }
-
-        const data = await response.json();
-        collection.value = isGhibliMovie(data) ? data : null;
-        return collection;
-    } catch (error) {
-        console.error('[movieByID] Fetch failed', error);
-        return collection;
-    }
+    return isGhibliMovie(data) ? data : null;
 }

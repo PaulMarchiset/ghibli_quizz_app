@@ -1,28 +1,20 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-
-const hasStarted = ref(false)
-
-function startGame() {
-    hasStarted.value = true
-}
-</script>
-
 <template>
-    <div class="min-h-screen bg-gray-100 p-4">
-        <!-- <h1 class="text-xl underline text-red-500">Game Page</h1> -->
-        <!-- <WebSocket /> -->
-        <div v-if="!hasStarted" class="flex flex-col items-start gap-4 max-w-xl mx-auto pt-8">
-            <GameSettings />
-            <button
-                class="px-6 py-3 rounded-full bg-black text-white"
-                @click="startGame"
-            >
-                Commencer la partie
-            </button>
+    <div class="min-h-screen bg-gray-100 p-4 sm:p-6">
+        <div class="max-w-xl mx-auto pt-8 flex flex-col gap-6">
+            <div class="space-y-2">
+                <h1 class="text-3xl font-bold text-gray-900">Studio Ghibli Quiz</h1>
+                <p class="text-gray-700">
+                    Configure ta partie, créé la ou rejoins-en une avec tes amis !
+                </p>
+            </div>
+
+            <GameRoomLobby />
+
+            <NuxtLink to="/history"
+                class="inline-flex w-fit px-6 py-3 rounded-full bg-white text-gray-900 shadow-sm font-semibold">
+                Historique des scores
+            </NuxtLink>
+
         </div>
-
-        <GameBoard v-else />
-
     </div>
 </template>

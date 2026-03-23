@@ -4,13 +4,27 @@ defineProps<{
   name: string
   score: number
 }>()
+
+function getRankColor(rank: number) {
+  switch (rank) {
+    case 1:
+      return '#FFD700' // Gold
+    case 2:
+      return '#C0C0C0' // Silver
+    case 3:
+      return '#CD7F32' // Bronze
+    default:
+      return '#facc15' // Default yellow for other ranks
+  }
+}
+
 </script>
 
 <template>
   <div class="leaderboard-item">
     <div class="left-section">
       <!-- Rank circle -->
-      <div class="rank-circle">
+      <div class="rank-circle" :style="{ backgroundColor: getRankColor(rank) }">
         <span class="rank-number">{{ rank }}</span>
       </div>
       

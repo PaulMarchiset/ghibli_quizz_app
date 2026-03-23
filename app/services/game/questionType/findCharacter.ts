@@ -11,8 +11,8 @@ export async function findCharacter() {
     const characters = await allCharacters();
     const movies = await allMovies();
 
-    const movieList: GhibliMovie[] = movies.value;
-    const characterList: GhibliCharacter[] = characters.value;
+    const movieList: GhibliMovie[] = movies;
+    const characterList: GhibliCharacter[] = characters;
 
     const usableCharacters = characterList.filter((c) => c.films.length > 0);
 
