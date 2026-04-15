@@ -10,14 +10,18 @@
     "dev:full": "concurrently \"npm:dev:socket\" \"npm:dev\"",
     "dev:full:network": "concurrently \"npm:dev:socket\" \"npm:dev:network\"",
     "generate": "nuxt generate",
+    "start": "node .output/server/index.mjs",
+    "start:socket": "tsx server/index.ts",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
     "nuxt": "^4.2.2",
+    "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "tailwindcss": "^4.1.18",
+    "tsx": "^4.21.0",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
   },
@@ -29,8 +33,6 @@
     "eslint": "^10.0.3",
     "eslint-plugin-vue": "^10.8.0",
     "globals": "^17.4.0",
-    "socket.io": "^4.8.3",
-    "tsx": "^4.21.0",
     "typescript-eslint": "^8.56.1"
   }
 }

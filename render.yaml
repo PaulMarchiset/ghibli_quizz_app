@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: ghibli-quizz-socket
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm run start:socket
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_ORIGIN
+        fromService:
+          type: web
+          name: ghibli-quizz-app
+          property: host
+
+  - type: web
+    name: ghibli-quizz-app
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NUXT_PUBLIC_SOCKET_URL
+        fromService:
+          type: web
+          name: ghibli-quizz-socket
+          property: host

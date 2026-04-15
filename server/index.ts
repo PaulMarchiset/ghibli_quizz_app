@@ -30,12 +30,26 @@ type QuestionsPayload = { roomCode?: string; questions?: SharedQuizQuestion[]; q
 type AnswerPayload = { roomCode?: string; questionId?: string; choiceId?: string }
 type Ack = (response: { ok: boolean; roomCode?: string; message?: string }) => void
 
-const PORT = Number(process.env.SOCKET_PORT ?? 4001)
+const PORT = Number(process.env.PORT ?? process.env.SOCKET_PORT ?? 4001)
 const HOST = process.env.SOCKET_HOST ?? '0.0.0.0'
+const rawClientOrigins = process.env.CLIENT_ORIGIN
+const allowedClientOrigins = rawClientOrigins
+  ? rawClientOrigins
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter((origin) => origin.length > 0)
+      .map((origin) => {
+        if (origin.includes('://')) return origin
+        if (origin.startsWith('localhost') || origin.startsWith('127.0.0.1')) {
+          return `http://${origin}`
+        }
+        return `https://${origin}`
+      })
+  : '*'
 const ROOM_CODE_LENGTH = 6
 const ROOM_CODE_ALPHABET = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'
 const httpServer = createServer()
-const io = new Server(httpServer, { cors: { origin: '*' } })
+const io = new Server(httpServer, { cors: { origin: allowedClientOrigins } })
 const rooms = new Map<string, Room>()
 
 function roomState(room: Room) {
