@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useGameRoom } from '../composables/useGameRoom'
 import { useGameSettings } from '../composables/useGameSettings'
 
@@ -19,22 +19,24 @@ const {
   createGame,
   joinGame,
   startGame,
+  resetGameToLobby,
   leaveGame
 } = useGameRoom()
 
-const playerName = ref(settings.value.pseudo.trim() || '')
 const joinCode = ref('')
 const localError = ref<string | null>(null)
 const busy = ref(false)
+const copyFeedback = ref<string | null>(null)
 
 const canStart = computed(() => phase.value === 'lobby' && isHost.value && players.value.length > 0)
+const canCreateNewGame = computed(() => phase.value === 'ended' && isHost.value && players.value.length > 0)
 
 async function onCreateRoom() {
   if (busy.value) return
   localError.value = null
   busy.value = true
 
-  const response = await createGame(playerName.value.trim())
+  const response = await createGame(settings.value.pseudo.trim())
 
   if (!response.ok) {
     localError.value = response.message ?? 'Unable to create room'
@@ -57,7 +59,7 @@ async function onJoinRoom() {
   localError.value = null
   busy.value = true
 
-  const response = await joinGame(normalizedCode, playerName.value.trim())
+  const response = await joinGame(normalizedCode, settings.value.pseudo.trim())
   if (!response.ok) {
     localError.value = response.message ?? 'Unable to join room'
   } else {
@@ -92,6 +94,34 @@ async function onLeaveGame() {
 
   busy.value = false
 }
+
+async function onCreateNewGame() {
+  if (busy.value || !canCreateNewGame.value) return
+  localError.value = null
+  busy.value = true
+
+  const response = await resetGameToLobby()
+  if (!response.ok) {
+    localError.value = response.message ?? 'Unable to create a new game'
+  }
+
+  busy.value = false
+}
+
+async function onCopyRoomCode() {
+  if (!roomCode.value) return
+
+  try {
+    await navigator.clipboard.writeText(roomCode.value)
+    copyFeedback.value = 'Code copied'
+  } catch {
+    copyFeedback.value = 'Copy failed'
+  }
+}
+
+watch(roomCode, () => {
+  copyFeedback.value = null
+})
 </script>
 
 <template>
@@ -99,28 +129,18 @@ async function onLeaveGame() {
     <GameSettings v-if="props.showSettings" />
 
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <h2 class="text-xl font-bold text-gray-900">Socket Game Room</h2>
+      <h2 class="text-xl font-bold text-gray-900">Salle de jeu en ligne</h2>
       <span
         class="inline-flex px-3 py-1 rounded-full text-xs font-semibold"
         :class="connected ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'"
       >
-        {{ connected ? 'Connected' : 'Disconnected' }}
+        {{ connected ? 'Connecté' : 'Déconnecté' }}
       </span>
     </div>
 
-    <div class="grid gap-3 sm:grid-cols-3">
+    <div v-if="!roomCode" class="grid gap-3 sm:grid-cols-2">
       <label class="sm:col-span-1 text-sm text-gray-700">
-        Player name
-        <input
-          v-model="playerName"
-          type="text"
-          class="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 text-gray-900"
-          placeholder="Your name"
-        />
-      </label>
-
-      <label class="sm:col-span-1 text-sm text-gray-700">
-        Room code
+        Code de la salle
         <input
           v-model="joinCode"
           type="text"
@@ -136,23 +156,34 @@ async function onLeaveGame() {
           :disabled="busy"
           @click="onCreateRoom"
         >
-          Create
+          Créer
         </button>
         <button
           class="inline-flex px-4 py-2 rounded-full bg-gray-900 text-white font-semibold disabled:opacity-50"
           :disabled="busy"
           @click="onJoinRoom"
         >
-          Join
+          Rejoindre
         </button>
       </div>
     </div>
 
     <div v-if="roomCode" class="rounded-2xl border border-gray-200 p-4 space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-2">
-        <p class="text-sm text-gray-700">
-          Room: <span class="font-bold tracking-wider text-gray-900">{{ roomCode }}</span>
-        </p>
+        <div class="flex items-center gap-2">
+          <p class="text-sm text-gray-700">
+            Room: <span class="font-bold tracking-wider text-gray-900">{{ roomCode }}</span>
+          </p>
+          <button
+            type="button"
+            class="inline-flex px-3 py-1 rounded-full bg-gray-900 text-white text-xs font-semibold disabled:opacity-50"
+            :disabled="busy"
+            @click="onCopyRoomCode"
+          >
+            Copy code
+          </button>
+          <span v-if="copyFeedback" class="text-xs text-gray-600">{{ copyFeedback }}</span>
+        </div>
         <p class="text-sm text-gray-700 capitalize">Phase: <span class="font-semibold text-gray-900">{{ phase }}</span></p>
       </div>
 
@@ -172,6 +203,14 @@ async function onLeaveGame() {
           @click="onStartGame"
         >
           Start game
+        </button>
+        <button
+          v-if="canCreateNewGame"
+          class="inline-flex px-4 py-2 rounded-full bg-indigo-600 text-white font-semibold disabled:opacity-50"
+          :disabled="busy"
+          @click="onCreateNewGame"
+        >
+          Create new game
         </button>
         <button
           class="inline-flex px-4 py-2 rounded-full bg-white border border-gray-300 text-gray-900 font-semibold disabled:opacity-50"

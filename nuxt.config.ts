@@ -22,7 +22,7 @@ export default defineNuxtConfig({
     apiUrl: "https://ghibliapi.vercel.app/",
     characterApiUrl: "https://api.jikan.moe/v4/characters",
     public: {
-      socketUrl: 'http://localhost:4001'
+      socketUrl: process.env.NUXT_PUBLIC_SOCKET_URL ?? ''
     }
   },
   app: {

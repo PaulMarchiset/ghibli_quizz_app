@@ -15,3 +15,18 @@
 body {
     font-family: 'PP Mori', sans-serif;
 }
+
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+a[href] {
+    cursor: pointer;
+    transition: opacity 160ms ease;
+}
+
+@media (hover: hover) {
+    button:not(:disabled):hover,
+    [role='button']:not([aria-disabled='true']):hover,
+    a[href]:hover {
+        opacity: 0.92;
+    }
+}

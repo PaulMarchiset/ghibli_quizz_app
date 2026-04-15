@@ -24,12 +24,16 @@ type Room = {
 type CreatePayload = { playerName?: string }
 type JoinPayload = { roomCode?: string; playerName?: string }
 type StartPayload = { roomCode?: string }
+type ResetPayload = { roomCode?: string }
 type LeavePayload = { roomCode?: string }
 type QuestionsPayload = { roomCode?: string; questions?: SharedQuizQuestion[]; questionSeconds?: number }
 type AnswerPayload = { roomCode?: string; questionId?: string; choiceId?: string }
 type Ack = (response: { ok: boolean; roomCode?: string; message?: string }) => void
 
 const PORT = Number(process.env.SOCKET_PORT ?? 4001)
+const HOST = process.env.SOCKET_HOST ?? '0.0.0.0'
+const ROOM_CODE_LENGTH = 6
+const ROOM_CODE_ALPHABET = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'
 const httpServer = createServer()
 const io = new Server(httpServer, { cors: { origin: '*' } })
 const rooms = new Map<string, Room>()
@@ -60,7 +64,23 @@ function hasValidQuestions(value: unknown): value is SharedQuizQuestion[] {
 }
 
 function randomCode() {
-  return Math.random().toString(36).slice(2, 8).toUpperCase()
+  let code = ''
+
+  for (let index = 0; index < ROOM_CODE_LENGTH; index += 1) {
+    const randomIndex = Math.floor(Math.random() * ROOM_CODE_ALPHABET.length)
+    code += ROOM_CODE_ALPHABET[randomIndex]
+  }
+
+  return code
+}
+
+function createUniqueRoomCode() {
+  let nextCode = randomCode()
+  while (rooms.has(nextCode)) {
+    nextCode = randomCode()
+  }
+
+  return nextCode
 }
 
 function normalizedName(playerName: string | undefined, fallback: string) {
@@ -106,7 +126,7 @@ function validateRoomRequest(payload: { roomCode?: string }, cb?: Ack) {
 
 io.on('connection', (socket: Socket) => {
   socket.on('game:create', (payload: CreatePayload = {}, cb?: Ack) => {
-    const code = randomCode()
+    const code = createUniqueRoomCode()
     const room: Room = {
       code,
       hostId: socket.id,
@@ -157,6 +177,25 @@ io.on('connection', (socket: Socket) => {
   cb?.({ ok: true })
   io.to(roomCode).emit('game:state', roomState(room))
 })
+
+  socket.on('game:reset', (payload: ResetPayload = {}, cb?: Ack) => {
+    const valid = validateRoomRequest(payload, cb)
+    if (!valid) return
+    const { roomCode, room } = valid
+
+    if (room.hostId !== socket.id) return cb?.({ ok: false, message: 'Only host can reset room' })
+
+    room.phase = 'lobby'
+    room.questions = []
+    room.questionSeconds = 15
+    room.answeredByQuestion = {}
+    for (const player of room.players) {
+      player.score = 0
+    }
+
+    cb?.({ ok: true })
+    io.to(roomCode).emit('game:state', roomState(room))
+  })
 
   socket.on('game:questions', (payload: QuestionsPayload = {}, cb?: Ack) => {
     const roomCode = payload.roomCode?.trim().toUpperCase()
@@ -213,7 +252,12 @@ io.on('connection', (socket: Socket) => {
     }
 
     if (room.answeredByQuestion[questionId].length === room.players.length) {
-      io.to(roomCode).emit('game:advance', { questionId })
+      const isLastQuestion = room.questions.at(-1)?.id === questionId
+      if (isLastQuestion) {
+        room.phase = 'ended'
+      } else {
+        io.to(roomCode).emit('game:advance', { questionId })
+      }
     }
 
     io.to(roomCode).emit('game:state', roomState(room))
@@ -238,6 +282,6 @@ io.on('connection', (socket: Socket) => {
   })
 })
 
-httpServer.listen(PORT, () => {
-  console.log(`Socket room server listening on :${PORT}`)
+httpServer.listen(PORT, HOST, () => {
+  console.log(`Socket room server listening on ${HOST}:${PORT}`)
 })

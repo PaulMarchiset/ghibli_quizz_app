@@ -1,5 +1,5 @@
 import { allSpecies } from "../../api/Species";
-import { allCharacters, characterImageByName } from "../../api/Characters";
+import { allCharacters, characterImageWithMetadataByName } from "../../api/Characters";
 import { type GhibliCharacter, type GhibliSpecies } from "../../types/ghibli";
 import { pickRandom, shuffleArray } from "../utils/random";
 
@@ -42,14 +42,15 @@ export async function characterSpecies() {
     // 6️⃣ Image du personnage
     // NOTE: `correctCharacter.species` from Ghibli API is a URL, not a human species name.
     // Passing the URL into `characterImageByName` makes its species filter fail and returns null.
-    const characterImage = await characterImageByName(
+    const imageResolution = await characterImageWithMetadataByName(
         correctCharacter.name,
         correctSpecies.name
     );
 
     return {
         character: correctCharacter,
-        image: characterImage,
+        image: imageResolution.imageUrl,
+        imageResolution,
         correctSpecies,
         answers
     };

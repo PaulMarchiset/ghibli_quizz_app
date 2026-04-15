@@ -126,6 +126,20 @@ export function useGameRoom() {
     return { ok: true }
   }
 
+  async function resetGameToLobby() {
+    if (!roomCode.value) {
+      return { ok: false, message: 'No room selected' }
+    }
+
+    const response = await emitWithAck('game:reset', { roomCode: roomCode.value })
+    if (!response.ok) {
+      socketError.value = response.message ?? 'Unable to reset room'
+      return { ok: false, message: socketError.value }
+    }
+
+    return { ok: true }
+  }
+
   async function publishQuestions(questions: QuizQuestion[], questionSeconds: number) {
     if (!roomCode.value) {
       return { ok: false, message: 'No room selected' }
@@ -204,6 +218,7 @@ export function useGameRoom() {
     createGame,
     joinGame,
     startGame,
+    resetGameToLobby,
     publishQuestions,
     submitAnswer,
     leaveGame,

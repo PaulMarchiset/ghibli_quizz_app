@@ -2,8 +2,33 @@ import { characterSpecies } from "./questionType/characterSpecies";
 import { characterFromMovie } from "./questionType/characterFromMovie";
 import { findCharacter } from "./questionType/findCharacter";
 import { japaneseName } from "./questionType/japaneseName";
+import type { CharacterImageResolution } from "../api/Characters";
 import { type GhibliCharacter, type GhibliMovie, type GhibliSpecies } from "../types/ghibli";
 import { shuffleArray } from "./utils/random";
+
+export type QuizQuestionReportContext = {
+    generatedBy: string;
+    character?: {
+        id: string;
+        name: string;
+        species?: string;
+        speciesName?: string;
+    };
+    movie?: {
+        id: string;
+        title: string;
+        url?: string;
+    };
+    image?: {
+        source: string;
+        requestedCharacterName?: string;
+        normalizedCharacterName?: string;
+        requestedSpecies?: string | null;
+        matchedCharacterName?: string | null;
+        exceptionJikanId?: number | null;
+        inspectedCandidates?: number;
+    };
+};
 
 export type QuizQuestion = {
     id: string;
@@ -15,12 +40,30 @@ export type QuizQuestion = {
         label: string;
     }[];
     correctChoiceId: string;
+    reportContext?: QuizQuestionReportContext;
 };
 
 export type QuestionTypeKey = QuizQuestion['type']
 
 type QuizChoice = QuizQuestion['choices'][number];
 type QuestionFactory = () => Promise<QuizQuestion>;
+
+function buildImageReportContext(
+    imageResolution?: CharacterImageResolution,
+    sourceOverride?: string
+): QuizQuestionReportContext['image'] | undefined {
+    if (!imageResolution && !sourceOverride) return undefined;
+
+    return {
+        source: sourceOverride ?? imageResolution?.source ?? 'none',
+        requestedCharacterName: imageResolution?.characterName,
+        normalizedCharacterName: imageResolution?.normalizedCharacterName,
+        requestedSpecies: imageResolution?.requestedSpecies ?? null,
+        matchedCharacterName: imageResolution?.matchedCharacterName ?? null,
+        exceptionJikanId: imageResolution?.exceptionJikanId ?? null,
+        inspectedCandidates: imageResolution?.inspectedCandidates
+    };
+}
 
 function hasChoiceFields(x: unknown): x is QuizChoice {
     if (typeof x !== 'object' || x === null) return false;
@@ -45,7 +88,7 @@ function ensureValidQuestion(q: QuizQuestion) {
 export async function makeCharacterSpeciesQuestion(): Promise<QuizQuestion> {
     const result = await characterSpecies();
     if (!result) throw new Error('Failed to generate character species question');
-    const { character, answers, correctSpecies, image } = result;
+    const { character, answers, correctSpecies, image, imageResolution } = result;
 
     return ensureValidQuestion({
         id: crypto.randomUUID(),
@@ -59,14 +102,24 @@ export async function makeCharacterSpeciesQuestion(): Promise<QuizQuestion> {
                 label: s.name
             }))
             .filter((c) => c.id && c.label),
-        correctChoiceId: correctSpecies.id
+        correctChoiceId: correctSpecies.id,
+        reportContext: {
+            generatedBy: 'characterSpecies',
+            character: {
+                id: character.id,
+                name: character.name,
+                species: character.species,
+                speciesName: correctSpecies.name
+            },
+            image: buildImageReportContext(imageResolution)
+        }
     });
 }
 
 export async function makeFindCharacterQuestion(): Promise<QuizQuestion> {
     const result = await findCharacter();
     if (!result) throw new Error('Failed to generate character movie question');
-    const { correctAnswer, wrongAnswer, image } = result;
+    const { correctAnswer, wrongAnswer, image, oneCharacter, imageResolution, imageSource } = result;
     const choices = shuffleArray([...(Array.isArray(wrongAnswer) ? wrongAnswer : []), correctAnswer]);
 
     return ensureValidQuestion({
@@ -81,7 +134,21 @@ export async function makeFindCharacterQuestion(): Promise<QuizQuestion> {
                 label: c.title
             }))
             .filter((c) => c.id && c.label),
-        correctChoiceId: correctAnswer.id
+        correctChoiceId: correctAnswer.id,
+        reportContext: {
+            generatedBy: 'findCharacter',
+            character: {
+                id: oneCharacter.id,
+                name: oneCharacter.name,
+                species: oneCharacter.species
+            },
+            movie: {
+                id: correctAnswer.id,
+                title: correctAnswer.title,
+                url: correctAnswer.url
+            },
+            image: buildImageReportContext(imageResolution, imageSource)
+        }
     });
 }
 
@@ -94,6 +161,7 @@ export async function makeCharacterFromMovieQuestion(): Promise<QuizQuestion> {
     const choices = shuffleArray([...wrongAnswer, correctAnswer]);
 
     const image = oneMovie.image ?? oneMovie.image_url;
+    const imageSource = oneMovie.image || oneMovie.image_url ? 'movie-image' : oneMovie.movie_banner ? 'movie-banner' : 'none';
 
     return ensureValidQuestion({
         id: crypto.randomUUID(),
@@ -107,7 +175,23 @@ export async function makeCharacterFromMovieQuestion(): Promise<QuizQuestion> {
                 label: c.name
             }))
             .filter((c) => c.id && c.label),
-        correctChoiceId: correctAnswer.id
+        correctChoiceId: correctAnswer.id,
+        reportContext: {
+            generatedBy: 'characterFromMovie',
+            character: {
+                id: correctAnswer.id,
+                name: correctAnswer.name,
+                species: correctAnswer.species
+            },
+            movie: {
+                id: oneMovie.id,
+                title: oneMovie.title,
+                url: oneMovie.url
+            },
+            image: {
+                source: imageSource
+            }
+        }
     });
 }
 
@@ -115,6 +199,7 @@ export async function makeJapaneseNameQuestion(): Promise<QuizQuestion> {
     const { correctAnswer, wrongAnswer, oneMovie } = await japaneseName();
     const choices = shuffleArray([correctAnswer, ...wrongAnswer]);
     const image = oneMovie?.image ?? oneMovie?.image_url;
+    const imageSource = oneMovie?.image || oneMovie?.image_url ? 'movie-image' : oneMovie?.movie_banner ? 'movie-banner' : 'none';
     return ensureValidQuestion({
         id: crypto.randomUUID(),
         type: "japanese-name",
@@ -124,7 +209,20 @@ export async function makeJapaneseNameQuestion(): Promise<QuizQuestion> {
             id: index.toString(),
             label: title
         })),
-        correctChoiceId: choices.findIndex(title => title === correctAnswer).toString()
+        correctChoiceId: choices.findIndex(title => title === correctAnswer).toString(),
+        reportContext: {
+            generatedBy: 'japaneseName',
+            movie: oneMovie
+                ? {
+                    id: oneMovie.id,
+                    title: oneMovie.title,
+                    url: oneMovie.url
+                }
+                : undefined,
+            image: {
+                source: imageSource
+            }
+        }
     });
 }
 

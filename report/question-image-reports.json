@@ -1,0 +1,66 @@
+[
+  {
+    "id": "0659a49e-3fb1-4d5f-a3ee-692b7202ed9e",
+    "reportedAt": "2026-04-14T13:45:40.758Z",
+    "reason": "wrong-image",
+    "details": "Kanta Ōgaki",
+    "question": {
+      "id": "b5f7a0c5-acd2-4336-a88b-e5a24ac28cb5",
+      "type": "character-species",
+      "prompt": "Quelle est l'espèce de Kanta Ōgaki ?",
+      "image": null,
+      "choices": [
+        {
+          "id": "f25fa661-3073-414d-968a-ab062e3065f7",
+          "label": "God"
+        },
+        {
+          "id": "6bc92fdd-b0f4-4286-ad71-1f99fb4a0d1e",
+          "label": "Deer"
+        },
+        {
+          "id": "e2cfaa78-fb19-11eb-9a03-0242ac130003",
+          "label": "Dragon"
+        },
+        {
+          "id": "af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
+          "label": "Human"
+        }
+      ],
+      "correctChoiceId": "af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
+      "correctChoiceLabel": "Human",
+      "reportContext": {
+        "generatedBy": "characterSpecies",
+        "character": {
+          "id": "0f8ef701-b4c7-4f15-bd15-368c7fe38d0a",
+          "name": "Kanta Ōgaki",
+          "species": "https://ghibliapi.vercel.app/species/af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
+          "speciesName": "Human"
+        },
+        "image": {
+          "source": "none",
+          "requestedCharacterName": "Kanta Ōgaki",
+          "normalizedCharacterName": "kanta ōgaki",
+          "requestedSpecies": "human",
+          "matchedCharacterName": null,
+          "exceptionJikanId": null,
+          "inspectedCandidates": 25
+        }
+      }
+    },
+    "gameplay": {
+      "questionIndex": 1,
+      "totalQuestions": 3,
+      "selectedChoiceId": null,
+      "answered": false,
+      "mode": "multiplayer",
+      "roomCode": "A8I2RH"
+    },
+    "reporter": {
+      "playerName": "ASTE",
+      "appRoute": "/game",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 OPR/129.0.0.0"
+    },
+    "clientReportedAt": "2026-04-14T13:45:40.434Z"
+  }
+]

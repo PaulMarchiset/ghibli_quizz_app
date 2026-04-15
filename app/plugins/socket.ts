@@ -11,7 +11,8 @@ export default defineNuxtPlugin(() => {
   }
 
   const config = useRuntimeConfig()
-  const socketUrl = config.public.socketUrl || 'http://localhost:4001'
+  const fallbackSocketUrl = `${window.location.protocol}//${window.location.hostname}:4001`
+  const socketUrl = config.public.socketUrl || fallbackSocketUrl
   const socket = io(socketUrl, {
     transports: ['websocket']
   })

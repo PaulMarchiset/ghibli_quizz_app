@@ -6,6 +6,7 @@ import { useGameRoom } from '../composables/useGameRoom'
 
 import QuizCard from './QuizCard.vue'
 import { checkAnswer, generateQuiz, getQuestionFactoriesForSelection, type QuizQuestion } from '../services/game/quizGame'
+import { reportQuestionIssue } from '../services/api/Reports'
 
 const settings = useGameSettings()
 const scoreHistory = useScoreHistory()
@@ -50,6 +51,8 @@ const selectedChoiceId = ref<string | null>(null)
 const scoreSaved = ref(false)
 const lastHandledAdvanceQuestionId = ref<string | null>(null)
 const pendingAdvanceTimeout = ref<number | null>(null)
+const reportingIssue = ref(false)
+const reportFeedback = ref<string | null>(null)
 
 function scheduleAdvance(delayMs = 700) {
   if (pendingAdvanceTimeout.value) {
@@ -97,6 +100,8 @@ async function startQuiz(count = quizLength.value) {
     finished.value = false
     selectedChoiceId.value = null
     scoreSaved.value = false
+    reportingIssue.value = false
+    reportFeedback.value = null
 
     try {
       if (inMultiplayerRoom.value) {
@@ -165,6 +170,55 @@ function onAnswerSelected(choiceId: string) {
   selectedChoiceId.value = choiceId
 }
 
+async function onReportQuestion(payload: { reason: 'wrong-image'; details: string }) {
+  if (!question.value || reportingIssue.value) return
+
+  reportingIssue.value = true
+  reportFeedback.value = null
+
+  try {
+    const currentQuestion = question.value
+    const correctChoiceLabel = currentQuestion.choices.find((choice) => choice.id === currentQuestion.correctChoiceId)?.label
+
+    const response = await reportQuestionIssue({
+      reason: payload.reason,
+      details: payload.details,
+      question: {
+        id: currentQuestion.id,
+        type: currentQuestion.type,
+        prompt: currentQuestion.prompt,
+        image: currentQuestion.image,
+        choices: currentQuestion.choices,
+        correctChoiceId: currentQuestion.correctChoiceId,
+        correctChoiceLabel,
+        reportContext: currentQuestion.reportContext
+      },
+      gameplay: {
+        questionIndex: currentIndex.value + 1,
+        totalQuestions: questions.value.length,
+        selectedChoiceId: selectedChoiceId.value,
+        answered: answered.value,
+        mode: inMultiplayerRoom.value ? 'multiplayer' : 'solo',
+        roomCode: inMultiplayerRoom.value ? gameRoom.roomCode.value : undefined
+      },
+      reporter: {
+        playerName: playerName.value,
+        appRoute: typeof window !== 'undefined' ? window.location.pathname : '/game',
+        userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'unknown'
+      },
+      clientReportedAt: new Date().toISOString()
+    })
+
+    if (response.ok) {
+      reportFeedback.value = 'Signalement enregistre. Merci.'
+    } else {
+      reportFeedback.value = response.message ?? 'Le signalement a echoue.'
+    }
+  } finally {
+    reportingIssue.value = false
+  }
+}
+
 function preloadQuizImages(list: QuizQuestion[]) {
   if (typeof window === 'undefined') return
 
@@ -200,6 +254,7 @@ function onTimeout() {
     } else if (!answered.value) {
       answered.value = true
       lastCorrect.value = false
+      void gameRoom.submitAnswer(question.value.id, '__timeout__')
     }
 
     scheduleAdvance(700)
@@ -222,6 +277,8 @@ function onTimeout() {
 watch(currentIndex, () => {
   // Force Timer to remount/restart per question
   timerKey.value++
+  reportFeedback.value = null
+  reportingIssue.value = false
 })
 
 watch(finished, (value) => {
@@ -337,8 +394,11 @@ watch(
       :choices="question.choices"
       :answered="answered"
       :correctChoiceId="question.correctChoiceId"
+      :reporting="reportingIssue"
+      :reportStatus="reportFeedback"
       @answer-selected="onAnswerSelected"
       @validate="onValidate"
+      @report-question="onReportQuestion"
     />
     <div v-if="!loading && !error && !finished && question" class="flex flex-col items-start gap-40">
       <GameTimer

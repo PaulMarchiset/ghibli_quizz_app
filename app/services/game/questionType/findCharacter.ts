@@ -1,4 +1,4 @@
-import { allCharacters, characterImageByName } from '../../api/Characters';
+import { allCharacters, characterImageWithMetadataByName } from '../../api/Characters';
 import { allMovies } from '../../api/Movies';
 import { type GhibliCharacter, type GhibliMovie } from '../../types/ghibli';
 import { pickRandom, shuffleArray } from '../utils/random';
@@ -22,7 +22,7 @@ export async function findCharacter() {
 
     const oneCharacter = pickRandom(usableCharacters);
     if (!oneCharacter) return null;
-    const characterImage = await characterImageByName(oneCharacter.name, oneCharacter.species ?? '');
+    const imageResolution = await characterImageWithMetadataByName(oneCharacter.name, oneCharacter.species ?? '');
 
     const filmUrls = oneCharacter.films.filter(Boolean);
     if (filmUrls.length === 0) return null;
@@ -36,6 +36,11 @@ export async function findCharacter() {
     // Fallback: if we can't find a character portrait (Jikan often has no match),
     // show the movie poster/banner instead so the UI still has an image.
     const fallbackImage = correctAnswer.image ?? correctAnswer.movie_banner ?? null;
+    const imageSource = imageResolution.imageUrl
+        ? imageResolution.source
+        : fallbackImage
+            ? 'movie-fallback'
+            : 'none';
 
     const finalWrongAnswer = shuffleArray(
         movieList.filter(m => toFilmUrl(m) !== correctFilmUrl)
@@ -45,7 +50,9 @@ export async function findCharacter() {
 
     return {
         oneCharacter,
-        image: characterImage ?? fallbackImage,
+        image: imageResolution.imageUrl ?? fallbackImage,
+        imageResolution,
+        imageSource,
         correctAnswer,
         wrongAnswer: finalWrongAnswer
     };
