@@ -4,7 +4,7 @@ A fast, multiplayer-ready quiz game inspired by the Studio Ghibli universe.
 
 ## Play Online
 
-Live app: **https://ghibli-quizz-app.onrender.com**
+Live app: **https://ghibli.paulmarchiset.me** or **https://ghibli-quizz-app.onrender.com**
 
 Create a room, share the code, and play with friends in real time.
 
