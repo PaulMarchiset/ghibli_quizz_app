@@ -8,9 +8,10 @@ import { registerHandlers } from './socketHandlers'
 
 const httpServer = createServer()
 const io = new Server(httpServer, { cors: { origin: '*' } })
+const PORT = Number(process.env.PORT ?? 4001)
 
 io.on('connection', (socket) => {
   registerHandlers(io, socket)
 })
 
-httpServer.listen(4001)
+httpServer.listen(PORT)
