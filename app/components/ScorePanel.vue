@@ -44,9 +44,10 @@ function getRankColor(rank: number) {
   justify-content: space-between;
   background: white;
   border-radius: 100px;
-  padding: 0.5rem 1.5rem 0.5rem 0.5rem;
+  padding: 0.5rem 1.25rem 0.5rem 0.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  min-width: 300px;
+  width: 100%;
+  min-width: 0;
 }
 
 .left-section {
@@ -82,5 +83,29 @@ function getRankColor(rank: number) {
   font-size: 1.125rem;
   font-weight: 500;
   color: #6b7280;
+}
+
+@media (max-width: 640px) {
+  .leaderboard-item {
+    border-radius: 20px;
+    padding: 0.5rem 1rem 0.5rem 0.5rem;
+  }
+
+  .rank-circle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .rank-number {
+    font-size: 1rem;
+  }
+
+  .name {
+    font-size: 1rem;
+  }
+
+  .score {
+    font-size: 0.95rem;
+  }
 }
 </style>

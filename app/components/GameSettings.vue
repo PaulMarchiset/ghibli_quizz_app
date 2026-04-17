@@ -84,7 +84,7 @@ function saveSettings() {
 
         <div class="flex items-center gap-3">
             <button
-                class="inline-flex px-4 py-2 rounded-full bg-black text-white font-semibold disabled:opacity-50"
+                class="inline-flex px-4 py-2 rounded-full btn-primary font-semibold disabled:opacity-50"
                 :disabled="!hasChanges"
                 @click="saveSettings"
             >

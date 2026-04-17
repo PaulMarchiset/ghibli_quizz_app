@@ -24,15 +24,11 @@ const emit = defineEmits<{
 }>()
 
 const selectedChoiceId = ref<string | null>(null)
-const reportFormOpen = ref(false)
-const reportDetails = ref('')
 
 watch(
   () => [props.question, props.choices],
   () => {
     selectedChoiceId.value = null
-    reportFormOpen.value = false
-    reportDetails.value = ''
   }
 )
 
@@ -45,7 +41,7 @@ function selectAnswer(choiceId: string) {
 function getChoiceStyle(choiceId: string) {
   if (!props.answered) {
     return selectedChoiceId.value === choiceId
-      ? 'bg-gray-900 text-white'
+      ? 'choice-selected'
       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
   }
 
@@ -66,38 +62,27 @@ function handleValidate() {
   })
 }
 
-function openReportForm() {
-  reportFormOpen.value = true
-}
-
-function closeReportForm() {
-  reportFormOpen.value = false
-}
-
 function submitReport() {
   emit('report-question', {
     reason: 'wrong-image',
-    details: reportDetails.value.trim()
+    details: ''
   })
-
-  reportFormOpen.value = false
-  reportDetails.value = ''
 }
 </script>
 
 <template>
-  <div class="bg-white rounded-3xl shadow-lg overflow-hidden max-w-100 w-full">
-    <!-- Image Section -->
-    <div class="p-4">
-
-      <div class="relative aspect-square w-full overflow-hidden max-h-70 rounded-2xl">
-        <img v-if="image" :src="image" :alt="question" class="w-full h-full object-cover" />
-        <div v-else class="w-full h-full bg-gray-100"></div>
+  <div class="bg-white rounded-3xl shadow-lg overflow-hidden w-full">
+    <div class="flex flex-col lg:flex-row">
+      <!-- Image Section -->
+      <div class="p-4 lg:flex lg:w-5/12 lg:flex-col">
+        <div class="relative w-full overflow-hidden rounded-2xl aspect-square lg:aspect-auto lg:flex-1 lg:min-h-full">
+          <img v-if="image" :src="image" :alt="question" class="h-full w-full object-cover" />
+          <div v-else class="w-full h-full bg-gray-100"></div>
+        </div>
       </div>
-    </div>
 
-    <!-- Question Section -->
-    <div class="p-6 pb-4 pt-0 flex flex-col gap-6 h-full">
+      <!-- Question Section -->
+      <div class="flex flex-col gap-6 p-6 pt-0 lg:w-7/12 lg:pt-6">
       <div class="flex items-start justify-between gap-4">
         <h3 class="text-2xl font-bold text-gray-900">
           {{ question }}
@@ -106,7 +91,7 @@ function submitReport() {
         <button
           type="button"
           class="w-10 h-10 rounded-full border border-gray-300 bg-white flex items-center justify-center shrink-0 hover:bg-gray-100 hover:cursor-pointer"
-          @click="openReportForm"
+          @click="submitReport"
           :disabled="reporting"
           aria-label="Reporter une image incorrecte"
           title="Reporter une image incorrecte"
@@ -115,40 +100,12 @@ function submitReport() {
         </button>
       </div>
 
-      <div v-if="reportFormOpen" class="rounded-2xl border border-amber-300 bg-amber-50 p-4 flex flex-col gap-3">
-        <p class="text-sm font-semibold text-amber-900">Signaler une image incorrecte</p>
-        <textarea
-          v-model="reportDetails"
-          rows="3"
-          class="w-full rounded-xl border border-amber-300 bg-white px-3 py-2 text-sm text-gray-800"
-          placeholder="Ajoutez un detail utile (optionnel). Exemple: image de Kiki incorrecte, id attendu a verifier."
-        />
-        <div class="flex items-center gap-2">
-          <button
-            type="button"
-            class="px-4 py-2 rounded-full bg-gray-200 text-gray-800 text-sm hover:bg-gray-300 hover:cursor-pointer"
-            @click="closeReportForm"
-            :disabled="reporting"
-          >
-            Annuler
-          </button>
-          <button
-            type="button"
-            class="px-4 py-2 rounded-full bg-gray-900 text-white text-sm hover:bg-gray-800 hover:cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
-            @click="submitReport"
-            :disabled="reporting"
-          >
-            {{ reporting ? 'Envoi...' : 'Envoyer le signalement' }}
-          </button>
-        </div>
-      </div>
-
       <p v-if="reportStatus" class="text-sm text-gray-700">{{ reportStatus }}</p>
 
       <!-- Multiple Choice Answers -->
       <div v-if="choices && choices.length > 0" class="flex gap-4 flex-col">
         <button v-for="choice in choices" :key="choice.id" @click="selectAnswer(choice.id)" :class="[
-          'w-full px-6 py-3 rounded-full text-left font-medium transition-all duration-200',
+          'w-full px-6 py-3 rounded-2xl sm:rounded-full text-left font-medium transition-all duration-200',
           'flex items-center gap-3',
           !answered ? 'hover:cursor-pointer' : 'cursor-default',
           getChoiceStyle(choice.id)
@@ -182,14 +139,15 @@ function submitReport() {
         @click="handleValidate"
         :disabled="answered"
         :class="[
-          'w-full text-white font-semibold py-4 rounded-full transition-colors duration-200',
+          'w-full text-white font-semibold py-4 rounded-2xl sm:rounded-full transition-colors duration-200',
           answered
             ? 'bg-gray-400 cursor-not-allowed'
-            : 'bg-gray-900 hover:bg-gray-800 hover:cursor-pointer'
+            : 'btn-primary'
         ]"
       >
         {{ answered ? 'Réponse validée' : 'Valider ma réponse' }}
       </button>
+      </div>
     </div>
   </div>
 </template>

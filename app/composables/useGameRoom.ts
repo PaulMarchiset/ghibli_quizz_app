@@ -62,7 +62,7 @@ export function useGameRoom() {
     })
 
     socket.on('game:error', (payload: { message?: string }) => {
-      socketError.value = payload?.message ?? 'WebSocket error'
+      socketError.value = payload?.message ?? 'Erreur WebSocket'
     })
 
     socket.on('game:advance', (payload: { questionId?: string }) => {
@@ -70,7 +70,7 @@ export function useGameRoom() {
     })
 
     socket.on('disconnect', () => {
-      socketError.value = 'Disconnected from room server'
+      socketError.value = 'Déconnecté de la salle de jeu'
     })
 
     listenerBound.value = true
@@ -79,12 +79,12 @@ export function useGameRoom() {
   function emitWithAck(event: string, payload: Record<string, unknown>) {
     return new Promise<AckResponse>((resolve) => {
       if (!socket) {
-        resolve({ ok: false, message: 'Socket is unavailable on server-side rendering.' })
+        resolve({ ok: false, message: 'L\'interface WebSocket n\'est pas disponible' })
         return
       }
 
       socket.emit(event, payload, (response: AckResponse | undefined) => {
-        resolve(response ?? { ok: false, message: 'No response from room server' })
+        resolve(response ?? { ok: false, message: 'Pas de réponse du serveur de salle' })
       })
     })
   }
@@ -93,7 +93,7 @@ export function useGameRoom() {
     ensureListeners()
     const response = await emitWithAck('game:create', { playerName })
     if (!response.ok) {
-      socketError.value = response.message ?? 'Unable to create room'
+      socketError.value = response.message ?? 'Impossible de créer la salle'
       return { ok: false, message: socketError.value }
     }
 
@@ -104,7 +104,7 @@ export function useGameRoom() {
     ensureListeners()
     const response = await emitWithAck('game:join', { roomCode: code.toUpperCase(), playerName })
     if (!response.ok) {
-      socketError.value = response.message ?? 'Unable to join room'
+      socketError.value = response.message ?? 'Impossible de rejoindre la salle'
       return { ok: false, message: socketError.value }
     }
 
@@ -119,7 +119,7 @@ export function useGameRoom() {
 
     const response = await emitWithAck('game:start', { roomCode: roomCode.value })
     if (!response.ok) {
-      socketError.value = response.message ?? 'Unable to start game'
+      socketError.value = response.message ?? 'Impossible de démarrer la partie'
       return { ok: false, message: socketError.value }
     }
 
@@ -133,7 +133,7 @@ export function useGameRoom() {
 
     const response = await emitWithAck('game:reset', { roomCode: roomCode.value })
     if (!response.ok) {
-      socketError.value = response.message ?? 'Unable to reset room'
+      socketError.value = response.message ?? 'Impossible de réinitialiser la salle'
       return { ok: false, message: socketError.value }
     }
 
@@ -152,7 +152,7 @@ export function useGameRoom() {
     })
 
     if (!response.ok) {
-      socketError.value = response.message ?? 'Unable to publish shared questions'
+      socketError.value = response.message ?? 'Impossible de publier les questions partagées'
       return { ok: false, message: socketError.value }
     }
 
@@ -171,7 +171,7 @@ export function useGameRoom() {
     })
 
     if (!response.ok) {
-      socketError.value = response.message ?? 'Unable to submit answer'
+      socketError.value = response.message ?? 'Impossible de soumettre la réponse'
       return { ok: false, message: socketError.value }
     }
 
@@ -186,7 +186,7 @@ export function useGameRoom() {
 
     const response = await emitWithAck('game:leave', { roomCode: roomCode.value })
     if (!response.ok) {
-      socketError.value = response.message ?? 'Unable to leave room'
+      socketError.value = response.message ?? 'Impossible de quitter la salle'
       return { ok: false, message: socketError.value }
     }
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import CopyIcon from './Icons/CopyIcon.vue'
 import { useGameRoom } from '../composables/useGameRoom'
 import { useGameSettings } from '../composables/useGameSettings'
 
@@ -152,14 +153,14 @@ watch(roomCode, () => {
 
       <div class="sm:col-span-1 flex items-end gap-2">
         <button
-          class="inline-flex px-4 py-2 rounded-full bg-black text-white font-semibold disabled:opacity-50"
+          class="inline-flex px-4 py-2 rounded-full btn-primary font-semibold disabled:opacity-50"
           :disabled="busy"
           @click="onCreateRoom"
         >
           Créer
         </button>
         <button
-          class="inline-flex px-4 py-2 rounded-full bg-gray-900 text-white font-semibold disabled:opacity-50"
+          class="inline-flex px-4 py-2 rounded-full btn-primary font-semibold disabled:opacity-50"
           :disabled="busy"
           @click="onJoinRoom"
         >
@@ -171,16 +172,15 @@ watch(roomCode, () => {
     <div v-if="roomCode" class="rounded-2xl border border-gray-200 p-4 space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-          <p class="text-sm text-gray-700">
-            Room: <span class="font-bold tracking-wider text-gray-900">{{ roomCode }}</span>
-          </p>
+          <p class="text-sm text-gray-700">Code :</p>
           <button
             type="button"
-            class="inline-flex px-3 py-1 rounded-full bg-gray-900 text-white text-xs font-semibold disabled:opacity-50"
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-[2px] btn-primary text-xs font-semibold disabled:opacity-50"
             :disabled="busy"
             @click="onCopyRoomCode"
           >
-            Copy code
+            <CopyIcon class="h-4 w-4" />
+            <span class="tracking-wider">{{ roomCode }}</span>
           </button>
           <span v-if="copyFeedback" class="text-xs text-gray-600">{{ copyFeedback }}</span>
         </div>

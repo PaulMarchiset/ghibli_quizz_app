@@ -51,6 +51,7 @@ const selectedChoiceId = ref<string | null>(null)
 const scoreSaved = ref(false)
 const lastHandledAdvanceQuestionId = ref<string | null>(null)
 const pendingAdvanceTimeout = ref<number | null>(null)
+const finalRevealTimeout = ref<number | null>(null)
 const reportingIssue = ref(false)
 const reportFeedback = ref<string | null>(null)
 
@@ -64,6 +65,13 @@ function scheduleAdvance(delayMs = 700) {
     pendingAdvanceTimeout.value = null
     advanceToNextQuestion()
   }, delayMs)
+}
+
+function clearFinalRevealTimeout() {
+  if (finalRevealTimeout.value) {
+    clearTimeout(finalRevealTimeout.value)
+    finalRevealTimeout.value = null
+  }
 }
 
 const question = computed(() => questions.value[currentIndex.value] ?? null)
@@ -91,6 +99,7 @@ async function startQuiz(count = quizLength.value) {
     loading.value = true
     error.value = null
   waitingForSharedQuestions.value = false
+  clearFinalRevealTimeout()
 
     questions.value = []
     currentIndex.value = 0
@@ -210,9 +219,9 @@ async function onReportQuestion(payload: { reason: 'wrong-image'; details: strin
     })
 
     if (response.ok) {
-      reportFeedback.value = 'Signalement enregistre. Merci.'
+      reportFeedback.value = 'Signalement enregistré ! Merci.'
     } else {
-      reportFeedback.value = response.message ?? 'Le signalement a echoue.'
+      reportFeedback.value = response.message ?? 'Le signalement a echoué :('
     }
   } finally {
     reportingIssue.value = false
@@ -241,7 +250,15 @@ function advanceToNextQuestion() {
   if (currentIndex.value < questions.value.length - 1) {
     currentIndex.value++
   } else {
-    finished.value = true
+    clearFinalRevealTimeout()
+    if (answered.value) {
+      finalRevealTimeout.value = window.setTimeout(() => {
+        finished.value = true
+        finalRevealTimeout.value = null
+      }, 1200)
+    } else {
+      finished.value = true
+    }
   }
 }
 
@@ -336,10 +353,11 @@ watch(
 </script>
 
 <template>
-  <div class="min-h-screen flex items-start gap-20 justify-center bg-gray-100 py-12 px-4">
+  <div class="min-h-screen w-full bg-gray-100 md:px-4 md:py-6 py-0 px-0">
+     <!-- Game settings & lobby -->
     <!-- Loading -->
-    <div v-if="loading" class="w-full max-w-xl bg-white rounded-3xl shadow-lg p-8 text-center space-y-4">
-      <div class="mx-auto w-12 h-12 rounded-full border-4 border-gray-200 border-t-gray-900 animate-spin"></div>
+    <div v-if="loading" class="mx-auto w-full max-w-xl rounded-3xl bg-white p-8 text-center shadow-lg space-y-4">
+      <div class="mx-auto h-12 w-12 rounded-full border-4 border-gray-200 border-t-gray-900 animate-spin"></div>
       <h2 class="text-2xl font-bold text-gray-900">Generation du quiz...</h2>
       <p class="text-gray-600">
         Preparation des questions en cours. Cela peut prendre quelques secondes selon les APIs.
@@ -347,77 +365,95 @@ watch(
     </div>
 
     <!-- Error -->
-    <div v-else-if="error" class="w-full max-w-xl bg-white rounded-3xl shadow-lg p-8 text-center space-y-4">
+    <div v-else-if="error" class="mx-auto w-full max-w-xl rounded-3xl bg-white p-8 text-center shadow-lg space-y-4">
       <h2 class="text-2xl font-bold text-red-700">Impossible de generer le quiz</h2>
       <p class="text-gray-700">{{ error }}</p>
-      <button
-        class="px-6 py-3 rounded-full bg-black text-white"
-        @click="startQuiz()"
-      >
+      <button class="px-6 py-3 rounded-full btn-primary" @click="startQuiz()">
         Reessayer
       </button>
     </div>
 
-    <div v-else-if="waitingForSharedQuestions" class="w-full max-w-xl bg-white rounded-3xl shadow-lg p-8 text-center space-y-4">
-      <div class="mx-auto w-12 h-12 rounded-full border-4 border-gray-200 border-t-gray-900 animate-spin"></div>
+    <div
+      v-else-if="waitingForSharedQuestions"
+      class="mx-auto w-full max-w-xl rounded-3xl bg-white p-8 text-center shadow-lg space-y-4"
+    >
+      <div class="mx-auto h-12 w-12 rounded-full border-4 border-gray-200 border-t-gray-900 animate-spin"></div>
       <h2 class="text-2xl font-bold text-gray-900">En attente de l'hote</h2>
       <p class="text-gray-600">
         L'hote est en train de generer et partager les questions.
       </p>
     </div>
 
-
     <!-- Quiz finished -->
-    <div v-else-if="finished" class="text-center space-y-4">
+    <div v-else-if="finished" class="mx-auto w-full max-w-xl text-center space-y-4">
       <h2 class="text-3xl font-bold">Quiz terminé 🎉</h2>
       <p>Score : {{ mySharedScore }} / {{ questions.length }}</p>
       <div class="flex flex-wrap justify-center gap-3">
-        <button
-          class="px-6 py-3 rounded-full bg-black text-white"
-          @click="startQuiz()"
-        >
+        <button class="px-6 py-3 rounded-full btn-primary" @click="startQuiz()">
           Rejouer
         </button>
-        <NuxtLink
-          to="/history"
-          class="px-6 py-3 rounded-full bg-white text-gray-900 shadow-sm"
-        >
+        <NuxtLink to="/history" class="px-6 py-3 rounded-full bg-white text-gray-900 shadow-sm">
           Voir l'historique
         </NuxtLink>
       </div>
     </div>
+
     <!-- Question -->
-    <QuizCard
-      v-else-if="question"
-      :image="question.image"
-      :question="question.prompt"
-      :choices="question.choices"
-      :answered="answered"
-      :correctChoiceId="question.correctChoiceId"
-      :reporting="reportingIssue"
-      :reportStatus="reportFeedback"
-      @answer-selected="onAnswerSelected"
-      @validate="onValidate"
-      @report-question="onReportQuestion"
-    />
-    <div v-if="!loading && !error && !finished && question" class="flex flex-col items-start gap-40">
-      <GameTimer
-        :key="timerKey"
-        :totalSeconds="effectiveQuestionSeconds"
-        @timeout="onTimeout"
-      />
+    <div v-else-if="question" class="mx-auto w-full">
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-12">
+        <div class="flex-1 space-y-4">
+          <div class="fixed right-4 top-[calc(var(--app-header-height)+0.75rem)] z-30 rounded-full border border-gray-200 bg-white/95 p-2 lg:hidden">
+            <GameTimer :key="timerKey" :totalSeconds="effectiveQuestionSeconds" @timeout="onTimeout" />
+          </div>
 
-      <div v-if="inMultiplayerRoom" class="flex flex-col gap-3">
-        <ScorePanel
-          v-for="(player, index) in sortedLeaderboard"
-          :key="player.id"
-          :rank="index + 1"
-          :name="player.name"
-          :score="player.score"
-        />
+          <QuizCard
+            :image="question.image"
+            :question="question.prompt"
+            :choices="question.choices"
+            :answered="answered"
+            :correctChoiceId="question.correctChoiceId"
+            :reporting="reportingIssue"
+            :reportStatus="reportFeedback"
+            @answer-selected="onAnswerSelected"
+            @validate="onValidate"
+            @report-question="onReportQuestion"
+          />
+
+          <div class="space-y-3 lg:hidden">
+            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              {{ inMultiplayerRoom ? 'Classement' : 'Votre score' }}
+            </p>
+            <div v-if="inMultiplayerRoom" class="space-y-3">
+              <ScorePanel
+                v-for="(player, index) in sortedLeaderboard"
+                :key="player.id"
+                :rank="index + 1"
+                :name="player.name"
+                :score="player.score"
+              />
+            </div>
+            <ScorePanel v-else :rank="1" :name="playerName" :score="score" />
+          </div>
+        </div>
+
+        <aside class="hidden lg:flex lg:w-72 lg:flex-col lg:gap-6">
+          <div class="flex justify-end">
+            <GameTimer :key="timerKey" :totalSeconds="effectiveQuestionSeconds" @timeout="onTimeout" />
+          </div>
+
+          <div v-if="inMultiplayerRoom" class="flex flex-col gap-3">
+            <ScorePanel
+              v-for="(player, index) in sortedLeaderboard"
+              :key="player.id"
+              :rank="index + 1"
+              :name="player.name"
+              :score="player.score"
+            />
+          </div>
+
+          <ScorePanel v-else :rank="1" :name="playerName" :score="score" />
+        </aside>
       </div>
-
-      <ScorePanel v-else :rank="1" :name="playerName" :score="score" />
     </div>
   </div>
 </template>
