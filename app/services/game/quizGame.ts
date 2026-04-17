@@ -6,6 +6,7 @@ import type { CharacterImageResolution } from "../api/Characters";
 import { type GhibliCharacter, type GhibliMovie, type GhibliSpecies } from "../types/ghibli";
 import { shuffleArray } from "./utils/random";
 
+// Types and factories for quiz questions, plus the main quiz generation function.
 export type QuizQuestionReportContext = {
     generatedBy: string;
     character?: {
@@ -45,8 +46,24 @@ export type QuizQuestion = {
 
 export type QuestionTypeKey = QuizQuestion['type']
 
+export const QUESTION_TYPE_LABELS: Record<QuestionTypeKey, string> = {
+    'character-species': 'Character species',
+    'character-movie': 'Character movie',
+    'movie-character': 'Movie character',
+    'japanese-name': 'Japanese title'
+}
+
+export const QUESTION_TYPE_KEYS = Object.keys(QUESTION_TYPE_LABELS) as QuestionTypeKey[]
+
 type QuizChoice = QuizQuestion['choices'][number];
 type QuestionFactory = () => Promise<QuizQuestion>;
+
+/**
+ * Builds the image context for a quiz question report.
+ * @param imageResolution Resolved image details and source.
+ * @param sourceOverride Optional string to override the image source.
+ * @returns The image context object, or undefined if unavailable.
+ */
 
 function buildImageReportContext(
     imageResolution?: CharacterImageResolution,
@@ -65,11 +82,19 @@ function buildImageReportContext(
     };
 }
 
+/**
+ * Validates that a quiz question has the necessary fields and a correct answer present in the choices.
+ * @param q The quiz question to validate.
+ * @returns The validated quiz question with properly typed choices.
+ * @throws An error if the question is invalid (e.g., too few choices, missing correct answer).
+ */
+
 function hasChoiceFields(x: unknown): x is QuizChoice {
     if (typeof x !== 'object' || x === null) return false;
     const candidate = x as Record<string, unknown>;
     return typeof candidate.id === 'string' && typeof candidate.label === 'string';
 }
+
 
 function ensureValidQuestion(q: QuizQuestion) {
     const choices = Array.isArray(q.choices) ? q.choices.filter(hasChoiceFields) : [];
@@ -84,6 +109,12 @@ function ensureValidQuestion(q: QuizQuestion) {
     if (!ids.has(q.correctChoiceId)) throw new Error('Generated question missing correctChoiceId in choices');
     return { ...q, choices };
 }
+
+/**
+ * Generates a multiple-choice quiz question about a character's species.
+ * @returns A promise resolving to the constructed quiz question.
+ * @throws {Error} If the question generation fails.
+ */
 
 export async function makeCharacterSpeciesQuestion(): Promise<QuizQuestion> {
     const result = await characterSpecies();
@@ -115,6 +146,12 @@ export async function makeCharacterSpeciesQuestion(): Promise<QuizQuestion> {
         }
     });
 }
+
+/**
+ * Generates a multiple-choice quiz question identifying a character's movie.
+ * @returns A promise resolving to the constructed quiz question.
+ * @throws {Error} If the question generation fails.
+ */
 
 export async function makeFindCharacterQuestion(): Promise<QuizQuestion> {
     const result = await findCharacter();
@@ -152,6 +189,11 @@ export async function makeFindCharacterQuestion(): Promise<QuizQuestion> {
     });
 }
 
+/**
+ * Generates a multiple-choice quiz question identifying which character belongs to a specific movie.
+ * @returns A promise resolving to the constructed quiz question.
+ * @throws {Error} If the question generation fails.
+ */
 
 export async function makeCharacterFromMovieQuestion(): Promise<QuizQuestion> {
     const result = await characterFromMovie();
@@ -194,6 +236,11 @@ export async function makeCharacterFromMovieQuestion(): Promise<QuizQuestion> {
         }
     });
 }
+
+/**
+ * Generates a multiple-choice quiz question identifying a movie's Japanese title.
+ * @returns A promise resolving to the constructed quiz question.
+ */
 
 export async function makeJapaneseNameQuestion(): Promise<QuizQuestion> {
     const { correctAnswer, wrongAnswer, oneMovie } = await japaneseName();
@@ -240,11 +287,21 @@ const QUESTION_FACTORY_BY_TYPE: Record<QuestionTypeKey, QuestionFactory> = {
     'japanese-name': makeJapaneseNameQuestion
 }
 
-export function getQuestionFactoriesForSelection(selection: 'all' | QuestionTypeKey) {
+export function getQuestionFactoriesForSelection(selection: 'all' | QuestionTypeKey[]) {
     if (selection === 'all') return QUESTION_FACTORIES
-    return [QUESTION_FACTORY_BY_TYPE[selection]]
+    if (selection.length === 0) return QUESTION_FACTORIES
+    return selection
+        .map((type) => QUESTION_FACTORY_BY_TYPE[type])
+        .filter(Boolean)
 }
 
+/**
+ * Generates a randomized quiz with a specified number of questions.
+ * @param count Number of questions to generate (default: 10).
+ * @param types Array of question factory functions to randomly select from.
+ * @returns A promise resolving to an array of generated quiz questions.
+ * @throws {Error} If parameters are invalid or if it fails to generate the required amount.
+ */
 
 export async function generateQuiz(
     count = 10,

@@ -24,6 +24,7 @@ const emit = defineEmits<{
 }>()
 
 const selectedChoiceId = ref<string | null>(null)
+const choiceDotColors = ['bg-red-500', 'bg-green-500', 'bg-teal-500', 'bg-purple-500']
 
 watch(
   () => [props.question, props.choices],
@@ -68,6 +69,10 @@ function submitReport() {
     details: ''
   })
 }
+
+function getChoiceDotClass(index: number) {
+  return choiceDotColors[index] ?? 'bg-gray-400'
+}
 </script>
 
 <template>
@@ -104,26 +109,13 @@ function submitReport() {
 
       <!-- Multiple Choice Answers -->
       <div v-if="choices && choices.length > 0" class="flex gap-4 flex-col">
-        <button v-for="choice in choices" :key="choice.id" @click="selectAnswer(choice.id)" :class="[
+        <button v-for="(choice, index) in choices" :key="choice.id" @click="selectAnswer(choice.id)" :class="[
           'w-full px-6 py-3 rounded-2xl sm:rounded-full text-left font-medium transition-all duration-200',
           'flex items-center gap-3',
           !answered ? 'hover:cursor-pointer' : 'cursor-default',
           getChoiceStyle(choice.id)
         ]">
-          <span :class="[
-            'w-3 h-3 rounded-full flex-shrink-0',
-            choices[0] === choice
-              ? 'bg-red-500'
-              :
-              choices[1] === choice
-                ? 'bg-green-500'
-                :
-                choices[2] === choice
-                  ? 'bg-teal-500' :
-
-                  choices[3] === choice
-                    ? 'bg-purple-500' : 'bg-gray-400'
-          ]"></span>
+          <span :class="['w-3 h-3 rounded-full flex-shrink-0', getChoiceDotClass(index)]"></span>
           <span class="flex-1">{{ choice.label }}</span>
           <span
             v-if="answered && choice.id === correctChoiceId"

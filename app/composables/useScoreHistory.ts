@@ -31,6 +31,12 @@ function sortByDateDesc(entries: ScoreHistoryEntry[]) {
   )
 }
 
+/**
+ * Composable for managing and persisting the user's game score history using local storage.
+ * @returns An object containing reactive history entries and methods to add or clear scores.
+ * @NOTE there might be some bugs with history on multiplayer games
+ */
+
 export function useScoreHistory() {
   const entries = useState<ScoreHistoryEntry[]>('scoreHistoryEntries', () => [])
   const loaded = useState<boolean>('scoreHistoryLoaded', () => false)

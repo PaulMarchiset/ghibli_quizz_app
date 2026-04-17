@@ -1,4 +1,4 @@
-import { computed } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import type { QuizQuestion } from '../services/game/quizGame'
 
 export type RoomPlayer = {
@@ -22,68 +22,110 @@ type AckResponse = {
   roomCode?: string
 }
 
+/**
+ * Composable for managing multiplayer game room state and WebSocket interactions.
+ * @returns An object containing reactive room state, player details, and methods for game actions.
+ */
+
 export function useGameRoom() {
   const nuxtApp = useNuxtApp()
-  const socket = nuxtApp.$socket
+  const socketRef = ref(nuxtApp.$socket)
 
   const roomState = useState<GameRoomState | null>('gameRoomState', () => null)
   const sharedQuestions = useState<QuizQuestion[] | null>('gameRoomSharedQuestions', () => null)
   const sharedQuestionSeconds = useState<number | null>('gameRoomSharedQuestionSeconds', () => null)
   const advanceQuestionId = useState<string | null>('gameRoomAdvanceQuestionId', () => null)
   const socketError = useState<string | null>('gameRoomSocketError', () => null)
-  const listenerBound = useState<boolean>('gameRoomListenerBound', () => false)
 
-  const playerId = computed(() => socket?.id ?? '')
+  const playerId = computed(() => socketRef.value?.id ?? '')
   const roomCode = computed(() => roomState.value?.code ?? '')
   const players = computed(() => roomState.value?.players ?? [])
   const phase = computed<RoomPhase>(() => roomState.value?.phase ?? 'lobby')
   const hostId = computed(() => roomState.value?.hostId ?? '')
   const isHost = computed(() => !!playerId.value && playerId.value === hostId.value)
-  const connected = computed(() => socket?.connected ?? false)
+  const connected = computed(() => socketRef.value?.connected ?? false)
+
+  const handleState = (nextState: GameRoomState) => {
+    roomState.value = nextState
+    socketError.value = null
+
+    if (nextState.phase === 'lobby') {
+      sharedQuestions.value = null
+      sharedQuestionSeconds.value = null
+      advanceQuestionId.value = null
+    }
+  }
+
+  const handleQuestions = (payload: { questions?: QuizQuestion[]; questionSeconds?: number }) => {
+    sharedQuestions.value = Array.isArray(payload?.questions) ? payload.questions : null
+    sharedQuestionSeconds.value = typeof payload?.questionSeconds === 'number' ? payload.questionSeconds : null
+    socketError.value = null
+  }
+
+  const handleError = (payload: { message?: string }) => {
+    socketError.value = payload?.message ?? 'Erreur WebSocket'
+  }
+
+  const handleAdvance = (payload: { questionId?: string }) => {
+    advanceQuestionId.value = typeof payload?.questionId === 'string' ? payload.questionId : null
+  }
+
+  const handleDisconnect = () => {
+    socketError.value = 'Déconnecté de la salle de jeu'
+  }
+
+  let boundSocket: typeof socketRef.value | null = null
+
+  function unbindSocket() {
+    if (!boundSocket) return
+
+    boundSocket.off('game:state', handleState)
+    boundSocket.off('game:questions', handleQuestions)
+    boundSocket.off('game:error', handleError)
+    boundSocket.off('game:advance', handleAdvance)
+    boundSocket.off('disconnect', handleDisconnect)
+    boundSocket = null
+  }
+
+  function bindSocket(nextSocket: typeof socketRef.value | null | undefined) {
+    if (!nextSocket || boundSocket === nextSocket) return
+
+    unbindSocket()
+    boundSocket = nextSocket
+
+    boundSocket.on('game:state', handleState)
+    boundSocket.on('game:questions', handleQuestions)
+    boundSocket.on('game:error', handleError)
+    boundSocket.on('game:advance', handleAdvance)
+    boundSocket.on('disconnect', handleDisconnect)
+  }
 
   function ensureListeners() {
-    if (!socket || listenerBound.value) return
-
-    socket.on('game:state', (nextState: GameRoomState) => {
-      roomState.value = nextState
-      socketError.value = null
-
-      if (nextState.phase === 'lobby') {
-        sharedQuestions.value = null
-        sharedQuestionSeconds.value = null
-        advanceQuestionId.value = null
-      }
-    })
-
-    socket.on('game:questions', (payload: { questions?: QuizQuestion[]; questionSeconds?: number }) => {
-      sharedQuestions.value = Array.isArray(payload?.questions) ? payload.questions : null
-      sharedQuestionSeconds.value = typeof payload?.questionSeconds === 'number' ? payload.questionSeconds : null
-      socketError.value = null
-    })
-
-    socket.on('game:error', (payload: { message?: string }) => {
-      socketError.value = payload?.message ?? 'Erreur WebSocket'
-    })
-
-    socket.on('game:advance', (payload: { questionId?: string }) => {
-      advanceQuestionId.value = typeof payload?.questionId === 'string' ? payload.questionId : null
-    })
-
-    socket.on('disconnect', () => {
-      socketError.value = 'Déconnecté de la salle de jeu'
-    })
-
-    listenerBound.value = true
+    bindSocket(socketRef.value)
   }
+
+  watch(
+    () => nuxtApp.$socket,
+    (nextSocket) => {
+      socketRef.value = nextSocket
+      bindSocket(nextSocket)
+    },
+    { immediate: true }
+  )
+
+  onUnmounted(() => {
+    unbindSocket()
+  })
 
   function emitWithAck(event: string, payload: Record<string, unknown>) {
     return new Promise<AckResponse>((resolve) => {
-      if (!socket) {
+      const activeSocket = socketRef.value
+      if (!activeSocket) {
         resolve({ ok: false, message: 'L\'interface WebSocket n\'est pas disponible' })
         return
       }
 
-      socket.emit(event, payload, (response: AckResponse | undefined) => {
+      activeSocket.emit(event, payload, (response: AckResponse | undefined) => {
         resolve(response ?? { ok: false, message: 'Pas de réponse du serveur de salle' })
       })
     })

@@ -1,459 +1,185 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useGameSettings } from '../composables/useGameSettings'
 import { useScoreHistory } from '../composables/useScoreHistory'
-import { useGameRoom } from '../composables/useGameRoom'
+import { useLeaderboardSort } from '../composables/useLeaderboardSort'
+import { useQuestionReporting } from '../composables/useQuestionReporting'
+import { useQuizGame } from '../composables/useQuizGame'
+import { useQuizMultiplayer } from '../composables/useQuizMultiplayer'
+import { QUESTION_TYPE_KEYS, QUESTION_TYPE_LABELS } from '../services/game/quizGame'
 
-import QuizCard from './QuizCard.vue'
-import { checkAnswer, generateQuiz, getQuestionFactoriesForSelection, type QuizQuestion } from '../services/game/quizGame'
-import { reportQuestionIssue } from '../services/api/Reports'
+import QuizEndScreen from './QuizEndScreen.vue'
+import QuizLayout from './QuizLayout.vue'
+import QuizQuestion from './QuizQuestion.vue'
+import QuizSidebar from './QuizSidebar.vue'
+import QuizStateWrapper from './QuizStateWrapper.vue'
 
 const settings = useGameSettings()
 const scoreHistory = useScoreHistory()
-const gameRoom = useGameRoom()
 
 const playerName = computed(() => settings.value.pseudo.trim() || 'Joueur')
 const questionSeconds = computed(() => settings.value.questionSeconds || 15)
+const quizLength = computed(() => settings.value.quizLength || 10)
+const selectedQuestionTypes = computed(() => settings.value.questionTypes)
+const selectedQuestionTypeLabel = computed(() => {
+  const types = selectedQuestionTypes.value
+  if (types.length === 0 || types.length === QUESTION_TYPE_KEYS.length) {
+    return 'All'
+  }
+
+  return types.map((type) => QUESTION_TYPE_LABELS[type] ?? type).join(', ')
+})
+
+const quiz = useQuizGame({
+  questionTypes: selectedQuestionTypes,
+  quizLength
+})
+const multiplayer = useQuizMultiplayer(quiz)
+const leaderboardSort = useLeaderboardSort(multiplayer.leaderboardItems)
+
+const {
+  questions,
+  score,
+  answered,
+  finished,
+  selectedChoiceId,
+  loading,
+  error,
+  question,
+  timerKey
+} = quiz
+
+const {
+  waitingForSharedQuestions,
+  inMultiplayerRoom,
+  mySharedScore,
+  sharedQuestionSeconds
+} = multiplayer
+
+const { sortedItems } = leaderboardSort
+
 const effectiveQuestionSeconds = computed(() => {
-  if (inMultiplayerRoom.value && gameRoom.sharedQuestionSeconds.value) {
-    return gameRoom.sharedQuestionSeconds.value
+  if (inMultiplayerRoom.value && sharedQuestionSeconds.value) {
+    return sharedQuestionSeconds.value
   }
 
   return questionSeconds.value
 })
-const quizLength = computed(() => settings.value.quizLength || 10)
-const selectedQuestionType = computed(() => settings.value.questionType)
-const selectedQuestionTypeLabel = computed(() => {
-  const labels: Record<string, string> = {
-    all: 'All',
-    'character-species': 'Character species',
-    'character-movie': 'Character movie',
-    'movie-character': 'Movie character',
-    'japanese-name': 'Japanese title'
-  }
 
-  return labels[selectedQuestionType.value] ?? selectedQuestionType.value
-})
-
-const loading = ref(true)
-const error = ref<string | null>(null)
-const waitingForSharedQuestions = ref(false)
-
-const questions = ref<QuizQuestion[]>([])
-const currentIndex = ref(0)
-const score = ref(0)
-
-const answered = ref(false)
-const lastCorrect = ref<boolean | null>(null)
-const finished = ref(false)
-const timerKey = ref(0)
-const selectedChoiceId = ref<string | null>(null)
-const scoreSaved = ref(false)
-const lastHandledAdvanceQuestionId = ref<string | null>(null)
-const pendingAdvanceTimeout = ref<number | null>(null)
-const finalRevealTimeout = ref<number | null>(null)
-const reportingIssue = ref(false)
-const reportFeedback = ref<string | null>(null)
-
-function scheduleAdvance(delayMs = 700) {
-  if (pendingAdvanceTimeout.value) {
-    clearTimeout(pendingAdvanceTimeout.value)
-    pendingAdvanceTimeout.value = null
-  }
-
-  pendingAdvanceTimeout.value = window.setTimeout(() => {
-    pendingAdvanceTimeout.value = null
-    advanceToNextQuestion()
-  }, delayMs)
-}
-
-function clearFinalRevealTimeout() {
-  if (finalRevealTimeout.value) {
-    clearTimeout(finalRevealTimeout.value)
-    finalRevealTimeout.value = null
-  }
-}
-
-const question = computed(() => questions.value[currentIndex.value] ?? null)
-const inMultiplayerRoom = computed(() => !!gameRoom.roomCode.value && gameRoom.phase.value === 'playing')
-
-const sortedLeaderboard = computed(() => {
-  if (!inMultiplayerRoom.value) return []
-
-  return [...gameRoom.players.value].sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score
-    return a.name.localeCompare(b.name)
-  })
-})
-
-const mySharedScore = computed(() => {
-  if (!inMultiplayerRoom.value) return score.value
-
-  const me = gameRoom.players.value.find((player) => player.id === gameRoom.playerId.value)
-  if (me) return me.score
-
-  return score.value
-})
-
-async function startQuiz(count = quizLength.value) {
-    loading.value = true
-    error.value = null
-  waitingForSharedQuestions.value = false
-  clearFinalRevealTimeout()
-
-    questions.value = []
-    currentIndex.value = 0
-    score.value = 0
-    answered.value = false
-    lastCorrect.value = null
-    finished.value = false
-    selectedChoiceId.value = null
-    scoreSaved.value = false
-    reportingIssue.value = false
-    reportFeedback.value = null
-
-    try {
-      if (inMultiplayerRoom.value) {
-        if (Array.isArray(gameRoom.sharedQuestions.value) && gameRoom.sharedQuestions.value.length > 0) {
-          questions.value = gameRoom.sharedQuestions.value
-          preloadQuizImages(questions.value)
-          timerKey.value++
-          return
-        }
-
-        if (gameRoom.isHost.value) {
-          const factories = getQuestionFactoriesForSelection(selectedQuestionType.value)
-          const generated = await generateQuiz(count, factories)
-          const publishResult = await gameRoom.publishQuestions(generated, questionSeconds.value)
-          if (!publishResult.ok) {
-            throw new Error(publishResult.message ?? 'Unable to publish shared questions')
-          }
-
-          questions.value = generated
-          preloadQuizImages(questions.value)
-          timerKey.value++
-          return
-        }
-
-        waitingForSharedQuestions.value = true
-        return
-      }
-
-      const factories = getQuestionFactoriesForSelection(selectedQuestionType.value)
-      questions.value = await generateQuiz(count, factories)
-        preloadQuizImages(questions.value)
-        timerKey.value++
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : String(e)
-    } finally {
-        loading.value = false
-    }
-}
-
-function onValidate(payload: { selectedChoiceId: string | null }) {
-  if (!question.value || answered.value) return
-  if (!payload.selectedChoiceId) return
-
-  const isCorrect = checkAnswer(question.value, payload.selectedChoiceId)
-
-  if (inMultiplayerRoom.value) {
-    void gameRoom.submitAnswer(question.value.id, payload.selectedChoiceId)
-    answered.value = true
-    lastCorrect.value = isCorrect
-    return
-  }
-
-  answered.value = true
-  lastCorrect.value = isCorrect
-
-  if (isCorrect) {
-    score.value++
-  }
-
-  // Solo mode: move quickly after validating.
-  scheduleAdvance(800)
-}
-
-function onAnswerSelected(choiceId: string) {
-  if (answered.value || finished.value) return
-  selectedChoiceId.value = choiceId
-}
-
-async function onReportQuestion(payload: { reason: 'wrong-image'; details: string }) {
-  if (!question.value || reportingIssue.value) return
-
-  reportingIssue.value = true
-  reportFeedback.value = null
-
-  try {
-    const currentQuestion = question.value
-    const correctChoiceLabel = currentQuestion.choices.find((choice) => choice.id === currentQuestion.correctChoiceId)?.label
-
-    const response = await reportQuestionIssue({
-      reason: payload.reason,
-      details: payload.details,
-      question: {
-        id: currentQuestion.id,
-        type: currentQuestion.type,
-        prompt: currentQuestion.prompt,
-        image: currentQuestion.image,
-        choices: currentQuestion.choices,
-        correctChoiceId: currentQuestion.correctChoiceId,
-        correctChoiceLabel,
-        reportContext: currentQuestion.reportContext
-      },
-      gameplay: {
-        questionIndex: currentIndex.value + 1,
-        totalQuestions: questions.value.length,
-        selectedChoiceId: selectedChoiceId.value,
-        answered: answered.value,
-        mode: inMultiplayerRoom.value ? 'multiplayer' : 'solo',
-        roomCode: inMultiplayerRoom.value ? gameRoom.roomCode.value : undefined
-      },
-      reporter: {
-        playerName: playerName.value,
-        appRoute: typeof window !== 'undefined' ? window.location.pathname : '/game',
-        userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'unknown'
-      },
-      clientReportedAt: new Date().toISOString()
-    })
-
-    if (response.ok) {
-      reportFeedback.value = 'Signalement enregistré ! Merci.'
-    } else {
-      reportFeedback.value = response.message ?? 'Le signalement a echoué :('
-    }
-  } finally {
-    reportingIssue.value = false
-  }
-}
-
-function preloadQuizImages(list: QuizQuestion[]) {
-  if (typeof window === 'undefined') return
-
-  for (const q of list) {
-    if (!q.image) continue
-    try {
-      const img = new Image()
-      img.src = q.image
-    } catch {
-      // ignore preloading failures
-    }
-  }
-}
-
-function advanceToNextQuestion() {
-  answered.value = false
-  lastCorrect.value = null
-  selectedChoiceId.value = null
-
-  if (currentIndex.value < questions.value.length - 1) {
-    currentIndex.value++
-  } else {
-    clearFinalRevealTimeout()
-    if (answered.value) {
-      finalRevealTimeout.value = window.setTimeout(() => {
-        finished.value = true
-        finalRevealTimeout.value = null
-      }, 1200)
-    } else {
-      finished.value = true
-    }
-  }
-}
-
-function onTimeout() {
-  if (!question.value || finished.value) return
-
-  if (inMultiplayerRoom.value) {
-    if (!answered.value && selectedChoiceId.value) {
-      onValidate({ selectedChoiceId: selectedChoiceId.value })
-    } else if (!answered.value) {
-      answered.value = true
-      lastCorrect.value = false
-      void gameRoom.submitAnswer(question.value.id, '__timeout__')
-    }
-
-    scheduleAdvance(700)
-    return
-  }
-
-  if (answered.value) return
-
-  if (selectedChoiceId.value) {
-    onValidate({ selectedChoiceId: selectedChoiceId.value })
-    return
-  }
-
-  answered.value = true
-  lastCorrect.value = false
-
-  scheduleAdvance(400)
-}
-
-watch(currentIndex, () => {
-  // Force Timer to remount/restart per question
-  timerKey.value++
-  reportFeedback.value = null
-  reportingIssue.value = false
-})
-
-watch(finished, (value) => {
-  if (!value || scoreSaved.value) return
-
+quiz.setOnFinished(({ totalQuestions }) => {
   scoreHistory.addEntry({
     playerName: playerName.value,
     points: mySharedScore.value,
-    totalQuestions: questions.value.length,
+    totalQuestions,
     questionType: selectedQuestionTypeLabel.value,
     questionSeconds: effectiveQuestionSeconds.value
   })
-
-  scoreSaved.value = true
 })
+
+const reporting = useQuestionReporting({
+  question: quiz.question,
+  questions: quiz.questions,
+  currentIndex: quiz.currentIndex,
+  selectedChoiceId: quiz.selectedChoiceId,
+  answered: quiz.answered,
+  playerName,
+  inMultiplayerRoom: multiplayer.inMultiplayerRoom,
+  roomCode: multiplayer.roomCode
+})
+
+const { reportingIssue, reportFeedback } = reporting
+
+async function startGame() {
+  if (inMultiplayerRoom.value) {
+    await multiplayer.startMultiplayerQuiz({
+      count: quizLength.value,
+      questionTypes: selectedQuestionTypes.value,
+      questionSeconds: questionSeconds.value
+    })
+    return
+  }
+
+  await quiz.startQuiz(quizLength.value)
+}
+
+function handleValidate(payload: { selectedChoiceId: string | null }) {
+  if (inMultiplayerRoom.value) {
+    multiplayer.onValidate(payload)
+    return
+  }
+
+  quiz.onValidate(payload)
+}
+
+function handleTimeout() {
+  if (multiplayer.inMultiplayerRoom.value) {
+    multiplayer.onTimeout()
+    return
+  }
+
+  quiz.onTimeout()
+}
 
 onMounted(() => {
   scoreHistory.ensureLoaded()
-  startQuiz(quizLength.value)
+  startGame()
 })
-
-watch(
-  () => gameRoom.sharedQuestions.value,
-  (nextQuestions) => {
-    if (!inMultiplayerRoom.value) return
-    if (!Array.isArray(nextQuestions) || nextQuestions.length === 0) return
-
-    questions.value = nextQuestions
-    currentIndex.value = 0
-    score.value = 0
-    answered.value = false
-    lastCorrect.value = null
-    finished.value = false
-    selectedChoiceId.value = null
-    waitingForSharedQuestions.value = false
-    loading.value = false
-    error.value = null
-    preloadQuizImages(nextQuestions)
-    timerKey.value++
-  },
-  { immediate: true }
-)
-
-watch(
-  () => gameRoom.advanceQuestionId.value,
-  (questionId) => {
-    if (!inMultiplayerRoom.value) return
-    if (!questionId || questionId === lastHandledAdvanceQuestionId.value) return
-    if (!question.value || question.value.id !== questionId) return
-
-    lastHandledAdvanceQuestionId.value = questionId
-    scheduleAdvance(700)
-  }
-)
 </script>
 
 <template>
   <div class="min-h-screen w-full bg-gray-100 md:px-4 md:py-6 py-0 px-0">
-     <!-- Game settings & lobby -->
-    <!-- Loading -->
-    <div v-if="loading" class="mx-auto w-full max-w-xl rounded-3xl bg-white p-8 text-center shadow-lg space-y-4">
-      <div class="mx-auto h-12 w-12 rounded-full border-4 border-gray-200 border-t-gray-900 animate-spin"></div>
-      <h2 class="text-2xl font-bold text-gray-900">Generation du quiz...</h2>
-      <p class="text-gray-600">
-        Preparation des questions en cours. Cela peut prendre quelques secondes selon les APIs.
-      </p>
-    </div>
-
-    <!-- Error -->
-    <div v-else-if="error" class="mx-auto w-full max-w-xl rounded-3xl bg-white p-8 text-center shadow-lg space-y-4">
-      <h2 class="text-2xl font-bold text-red-700">Impossible de generer le quiz</h2>
-      <p class="text-gray-700">{{ error }}</p>
-      <button class="px-6 py-3 rounded-full btn-primary" @click="startQuiz()">
-        Reessayer
-      </button>
-    </div>
-
-    <div
-      v-else-if="waitingForSharedQuestions"
-      class="mx-auto w-full max-w-xl rounded-3xl bg-white p-8 text-center shadow-lg space-y-4"
+    <QuizStateWrapper
+      :loading="loading"
+      :error="error"
+      :waiting="waitingForSharedQuestions"
+      @retry="startGame"
     >
-      <div class="mx-auto h-12 w-12 rounded-full border-4 border-gray-200 border-t-gray-900 animate-spin"></div>
-      <h2 class="text-2xl font-bold text-gray-900">En attente de l'hote</h2>
-      <p class="text-gray-600">
-        L'hote est en train de generer et partager les questions.
-      </p>
-    </div>
+      <QuizEndScreen
+        v-if="finished"
+        :score="mySharedScore"
+        :totalQuestions="questions.length"
+        @replay="startGame"
+      />
 
-    <!-- Quiz finished -->
-    <div v-else-if="finished" class="mx-auto w-full max-w-xl text-center space-y-4">
-      <h2 class="text-3xl font-bold">Quiz terminé 🎉</h2>
-      <p>Score : {{ mySharedScore }} / {{ questions.length }}</p>
-      <div class="flex flex-wrap justify-center gap-3">
-        <button class="px-6 py-3 rounded-full btn-primary" @click="startQuiz()">
-          Rejouer
-        </button>
-        <NuxtLink to="/history" class="px-6 py-3 rounded-full bg-white text-gray-900 shadow-sm">
-          Voir l'historique
-        </NuxtLink>
-      </div>
-    </div>
-
-    <!-- Question -->
-    <div v-else-if="question" class="mx-auto w-full">
-      <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-12">
-        <div class="flex-1 space-y-4">
-          <div class="fixed right-4 top-[calc(var(--app-header-height)+0.75rem)] z-30 rounded-full border border-gray-200 bg-white/95 p-2 lg:hidden">
-            <GameTimer :key="timerKey" :totalSeconds="effectiveQuestionSeconds" @timeout="onTimeout" />
-          </div>
-
-          <QuizCard
-            :image="question.image"
-            :question="question.prompt"
-            :choices="question.choices"
+      <QuizLayout v-else-if="question">
+        <template #main>
+          <QuizQuestion
+            :question="question"
             :answered="answered"
+            :selectedChoiceId="selectedChoiceId"
             :correctChoiceId="question.correctChoiceId"
             :reporting="reportingIssue"
             :reportStatus="reportFeedback"
-            @answer-selected="onAnswerSelected"
-            @validate="onValidate"
-            @report-question="onReportQuestion"
+            :timerKey="timerKey"
+            :totalSeconds="effectiveQuestionSeconds"
+            @answer-selected="quiz.onAnswerSelected"
+            @validate="handleValidate"
+            @timeout="handleTimeout"
+            @report-question="reporting.onReportQuestion"
           />
 
-          <div class="space-y-3 lg:hidden">
-            <p class="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              {{ inMultiplayerRoom ? 'Classement' : 'Votre score' }}
-            </p>
-            <div v-if="inMultiplayerRoom" class="space-y-3">
-              <ScorePanel
-                v-for="(player, index) in sortedLeaderboard"
-                :key="player.id"
-                :rank="index + 1"
-                :name="player.name"
-                :score="player.score"
-              />
-            </div>
-            <ScorePanel v-else :rank="1" :name="playerName" :score="score" />
-          </div>
-        </div>
+          <QuizSidebar
+            variant="mobile"
+            :items="sortedItems"
+            :inMultiplayerRoom="inMultiplayerRoom"
+            :playerName="playerName"
+            :score="score"
+          />
+        </template>
 
-        <aside class="hidden lg:flex lg:w-72 lg:flex-col lg:gap-6">
-          <div class="flex justify-end">
-            <GameTimer :key="timerKey" :totalSeconds="effectiveQuestionSeconds" @timeout="onTimeout" />
-          </div>
-
-          <div v-if="inMultiplayerRoom" class="flex flex-col gap-3">
-            <ScorePanel
-              v-for="(player, index) in sortedLeaderboard"
-              :key="player.id"
-              :rank="index + 1"
-              :name="player.name"
-              :score="player.score"
-            />
-          </div>
-
-          <ScorePanel v-else :rank="1" :name="playerName" :score="score" />
-        </aside>
-      </div>
-    </div>
+        <template #sidebar>
+          <QuizSidebar
+            variant="desktop"
+            :items="sortedItems"
+            :inMultiplayerRoom="inMultiplayerRoom"
+            :playerName="playerName"
+            :score="score"
+            :timerKey="timerKey"
+            :totalSeconds="effectiveQuestionSeconds"
+            @timeout="handleTimeout"
+          />
+        </template>
+      </QuizLayout>
+    </QuizStateWrapper>
   </div>
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, watch } from 'vue'
 import { useGameRoom } from '../composables/useGameRoom'
+import { useLeaderboardSort } from '../composables/useLeaderboardSort'
 
 const { roomState, phase, isHost, players } = useGameRoom()
 
@@ -12,16 +13,24 @@ const showEndedSummary = computed(() => {
   return !!roomState.value && phase.value === 'ended'
 })
 
-const sortedLeaderboard = computed(() => {
-  if (!roomState.value) return []
+const leaderboardSort = useLeaderboardSort(players)
+const sortedLeaderboard = leaderboardSort.sortedItems
+const topScore = computed(() => sortedLeaderboard.value[0]?.score ?? 0)
 
-  return [...players.value].sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score
-    return a.name.localeCompare(b.name)
+const rankedLeaderboard = computed(() => {
+  let lastScore: number | null = null
+  let lastRank = 0
+
+  return sortedLeaderboard.value.map((player, index) => {
+    if (lastScore === player.score) {
+      return { player, rank: lastRank }
+    }
+
+    lastScore = player.score
+    lastRank = index + 1
+    return { player, rank: lastRank }
   })
 })
-
-const topScore = computed(() => sortedLeaderboard.value[0]?.score ?? 0)
 
 const showSettings = computed(() => {
   if (!roomState.value) return true
@@ -66,13 +75,13 @@ watch(
           </div>
         </div>
 
-        <div v-if="sortedLeaderboard.length" class="grid gap-3 sm:grid-cols-2">
+        <div v-if="rankedLeaderboard.length" class="grid gap-3 sm:grid-cols-2">
           <ScorePanel
-            v-for="(player, index) in sortedLeaderboard"
-            :key="player.id"
-            :rank="index + 1"
-            :name="player.name"
-            :score="player.score"
+            v-for="entry in rankedLeaderboard"
+            :key="entry.player.id"
+            :rank="entry.rank"
+            :name="entry.player.name"
+            :score="entry.player.score"
           />
         </div>
         <p v-else class="text-sm text-gray-600">No players in the room.</p>

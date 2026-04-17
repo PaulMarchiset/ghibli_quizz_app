@@ -8,6 +8,11 @@ export type GhibliMovie = {
   image?: string;
   image_url?: string;
   movie_banner?: string;
+  director?: string;
+  producer?: string;
+  release_date?: string;
+  running_time?: string;
+  rt_score?: string;
 };
 
 export type GhibliCharacter = {

@@ -2,20 +2,48 @@
 import { computed, reactive, ref } from 'vue'
 import SettingsIcon from './Icons/SettingsIcon.vue'
 import { useGameSettings, type GameSettings } from '../composables/useGameSettings'
+import { QUESTION_TYPE_KEYS, type QuestionTypeKey } from '../services/game/quizGame'
 
 const settings = useGameSettings()
 const draftSettings = reactive<GameSettings>({ ...settings.value })
 const saveFeedback = ref('')
 
-const hasChanges = computed(() =>
-    draftSettings.pseudo !== settings.value.pseudo ||
-    draftSettings.questionSeconds !== settings.value.questionSeconds ||
-    draftSettings.quizLength !== settings.value.quizLength ||
-    draftSettings.questionType !== settings.value.questionType
-)
+const questionTypeOptions: { value: QuestionTypeKey; label: string }[] = [
+    { value: 'character-species', label: 'Espece du personnage' },
+    { value: 'character-movie', label: 'Film du personnage' },
+    { value: 'movie-character', label: 'Personnage du film' },
+    { value: 'japanese-name', label: 'Titre japonais' }
+]
+
+const allQuestionTypes = QUESTION_TYPE_KEYS
+
+function normalizeQuestionTypes(values: QuestionTypeKey[]) {
+    return values.length > 0 ? values : [...allQuestionTypes]
+}
+
+function areSameSelections(a: QuestionTypeKey[], b: QuestionTypeKey[]) {
+    if (a.length !== b.length) return false
+    return a.every((value) => b.includes(value))
+}
+
+const hasChanges = computed(() => {
+    const normalizedDraft = normalizeQuestionTypes(draftSettings.questionTypes)
+    const normalizedSaved = normalizeQuestionTypes(settings.value.questionTypes)
+
+    return (
+        draftSettings.pseudo !== settings.value.pseudo ||
+        draftSettings.questionSeconds !== settings.value.questionSeconds ||
+        draftSettings.quizLength !== settings.value.quizLength ||
+        !areSameSelections(normalizedDraft, normalizedSaved)
+    )
+})
 
 function saveSettings() {
-    settings.value = { ...settings.value, ...draftSettings }
+    settings.value = {
+        ...settings.value,
+        ...draftSettings,
+        questionTypes: normalizeQuestionTypes(draftSettings.questionTypes)
+    }
     saveFeedback.value = 'Paramètres sauvegardés'
 
     setTimeout(() => {
@@ -67,19 +95,27 @@ function saveSettings() {
                 </select>
             </label>
 
-            <label class="sm:col-span-2 text-sm text-gray-700">
-                Type de questions
-                <select
-                    v-model="draftSettings.questionType"
-                    class="mt-1 w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-gray-900"
-                >
-                    <option value="all">Toutes</option>
-                    <option value="character-species">Espece du personnage</option>
-                    <option value="character-movie">Film du personnage</option>
-                    <option value="movie-character">Personnage du film</option>
-                    <option value="japanese-name">Titre japonais</option>
-                </select>
-            </label>
+            <div class="sm:col-span-2 text-sm text-gray-700">
+                <p class="font-semibold">Type de questions</p>
+                <div class="mt-2 grid gap-2 sm:grid-cols-2">
+                    <label
+                        v-for="option in questionTypeOptions"
+                        :key="option.value"
+                        class="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2"
+                    >
+                        <input
+                            v-model="draftSettings.questionTypes"
+                            type="checkbox"
+                            :value="option.value"
+                            class="h-4 w-4"
+                        />
+                        <span>{{ option.label }}</span>
+                    </label>
+                </div>
+                <p class="mt-2 text-xs text-gray-500">
+                    Si rien n'est sélectionné, toutes les questions seront utilisées.
+                </p>
+            </div>
         </div>
 
         <div class="flex items-center gap-3">

@@ -3,6 +3,7 @@ import { fetchJsonOrFallback } from "./api";
 
 export type QuestionIssueReason = 'wrong-image';
 
+
 export type QuestionReportPayload = {
     reason: QuestionIssueReason;
     details?: string;
@@ -31,6 +32,12 @@ export type QuestionReportResponse = {
     storedIn?: string;
     message?: string;
 };
+
+/**
+ * Sends a report about a quiz question issue to the server.
+ * @param payload The details of the question issue being reported.
+ * @returns A promise resolving to the server's response indicating success or failure of the report submission.
+ */
 
 export async function reportQuestionIssue(payload: QuestionReportPayload): Promise<QuestionReportResponse> {
     return fetchJsonOrFallback<QuestionReportResponse, QuestionReportResponse>(

@@ -1,3 +1,7 @@
+// -------------------------------------------------------
+// this file is for handling reports about quiz questions!
+// --------------------------------------------------------
+
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 

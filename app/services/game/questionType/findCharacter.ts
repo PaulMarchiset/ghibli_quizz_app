@@ -7,6 +7,11 @@ function toFilmUrl(movie: GhibliMovie): string {
     return movie.url;
 }
 
+/**
+ * Generates a quiz question where the player must identify a character from a randomly selected movie.
+ * @returns A promise resolving to an object containing the selected movie, the correct character answer, and a list of wrong character answers.
+ */
+
 export async function findCharacter() {
     const characters = await allCharacters();
     const movies = await allMovies();
@@ -33,8 +38,8 @@ export async function findCharacter() {
     const correctAnswer = movieList.find(m => toFilmUrl(m) === correctFilmUrl) ?? null;
     if (!correctAnswer) return null;
 
-    // Fallback: if we can't find a character portrait (Jikan often has no match),
-    // show the movie poster/banner instead so the UI still has an image.
+    // Fallback: if we can't find a character portrait (Jikan can no match),
+    // we show the movie poster/banner instead so the UI still has an image.
     const fallbackImage = correctAnswer.image ?? correctAnswer.movie_banner ?? null;
     const imageSource = imageResolution.imageUrl
         ? imageResolution.source

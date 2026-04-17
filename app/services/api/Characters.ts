@@ -12,6 +12,7 @@ const CHARACTER_SEARCH_EXCEPTIONS = Object.fromEntries(
         .map(([name, jikanId]) => [normalizeName(name), jikanId])
 ) as Record<string, number>;
 
+// for jikan character that does not have a direct match
 export type CharacterImageSource =
     | 'none'
     | 'exception-id'
@@ -53,6 +54,12 @@ function normalizeName(value: string): string {
     return value.trim().toLowerCase();
 }
 
+/**
+ * Fetches a character image URL from Jikan API by character ID.
+ * @param jikanCharacterId The Jikan character ID to fetch the image for.
+ * @returns A promise resolving to the character image URL or null if not found.
+ */
+
 async function characterImageById(jikanCharacterId: number): Promise<string | null> {
     const data = await fetchJsonOrFallback<JikanCharacterByIdResponse, null>(
         `${CHARACTER_URL}/${jikanCharacterId}/full`,
@@ -61,6 +68,11 @@ async function characterImageById(jikanCharacterId: number): Promise<string | nu
 
     return data?.data?.images?.jpg?.image_url ?? null;
 }
+
+/**
+ * Fetches a list of all Ghibli characters from the Ghibli API.
+ * @returns A promise resolving to an array of GhibliCharacter objects.
+ */
 
 export async function allCharacters(): Promise<GhibliCharacter[]> {
     const data = await fetchJsonOrFallback<unknown, []>(`${BASE_URL}/people`, {
@@ -71,6 +83,13 @@ export async function allCharacters(): Promise<GhibliCharacter[]> {
     return Array.isArray(data) ? data.filter(isGhibliCharacter) : [];
 }
 
+
+/**
+ * Fetches a single Ghibli character by ID from the Ghibli API.
+ * @param characterId The ID of the character to fetch.
+ * @returns A promise resolving to the GhibliCharacter object or null if not found.
+ */
+
 export async function characterByID(characterId: string): Promise<GhibliCharacter | null> {
     const data = await fetchJsonOrFallback<unknown, null>(`${BASE_URL}/people/${characterId}`, {
         context: 'characterByID',
@@ -79,6 +98,13 @@ export async function characterByID(characterId: string): Promise<GhibliCharacte
 
     return isGhibliCharacter(data) ? data : null;
 }
+
+/**
+ * Fetches a character image URL from Jikan API by character name and optional species filter.
+ * @param characterName The name of the character to search for.
+ * @param characterSpecies Optional species filter to improve matching accuracy.
+ * @returns A promise resolving to a CharacterImageResolution object containing the image URL and metadata.
+ */
 
 export async function characterImageWithMetadataByName(
     characterName: string,

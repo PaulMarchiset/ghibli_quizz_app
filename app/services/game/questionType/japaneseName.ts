@@ -11,6 +11,11 @@ function movieDisplayTitle(movie?: GhibliMovie | null) {
     ).trim();
 }
 
+/**
+ * Generates a quiz question where the player must identify a movie's Japanese name based on its image
+ * @returns A promise resolving to an object containing the correct Japanese name, a list of wrong Japanese names
+ */ 
+
 export async function japaneseName() {
     const movies = await allMovies();
 

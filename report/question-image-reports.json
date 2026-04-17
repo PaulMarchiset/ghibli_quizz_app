@@ -1,133 +1,5 @@
 [
   {
-    "id": "0659a49e-3fb1-4d5f-a3ee-692b7202ed9e",
-    "reportedAt": "2026-04-14T13:45:40.758Z",
-    "reason": "wrong-image",
-    "details": "Kanta Ōgaki",
-    "question": {
-      "id": "b5f7a0c5-acd2-4336-a88b-e5a24ac28cb5",
-      "type": "character-species",
-      "prompt": "Quelle est l'espèce de Kanta Ōgaki ?",
-      "image": null,
-      "choices": [
-        {
-          "id": "f25fa661-3073-414d-968a-ab062e3065f7",
-          "label": "God"
-        },
-        {
-          "id": "6bc92fdd-b0f4-4286-ad71-1f99fb4a0d1e",
-          "label": "Deer"
-        },
-        {
-          "id": "e2cfaa78-fb19-11eb-9a03-0242ac130003",
-          "label": "Dragon"
-        },
-        {
-          "id": "af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
-          "label": "Human"
-        }
-      ],
-      "correctChoiceId": "af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
-      "correctChoiceLabel": "Human",
-      "reportContext": {
-        "generatedBy": "characterSpecies",
-        "character": {
-          "id": "0f8ef701-b4c7-4f15-bd15-368c7fe38d0a",
-          "name": "Kanta Ōgaki",
-          "species": "https://ghibliapi.vercel.app/species/af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
-          "speciesName": "Human"
-        },
-        "image": {
-          "source": "none",
-          "requestedCharacterName": "Kanta Ōgaki",
-          "normalizedCharacterName": "kanta ōgaki",
-          "requestedSpecies": "human",
-          "matchedCharacterName": null,
-          "exceptionJikanId": null,
-          "inspectedCandidates": 25
-        }
-      }
-    },
-    "gameplay": {
-      "questionIndex": 1,
-      "totalQuestions": 3,
-      "selectedChoiceId": null,
-      "answered": false,
-      "mode": "multiplayer",
-      "roomCode": "A8I2RH"
-    },
-    "reporter": {
-      "playerName": "ASTE",
-      "appRoute": "/game",
-      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 OPR/129.0.0.0"
-    },
-    "clientReportedAt": "2026-04-14T13:45:40.434Z"
-  },
-  {
-    "id": "32a5599d-bdc5-4269-9573-88351cdc6ae5",
-    "reportedAt": "2026-04-17T11:33:23.725Z",
-    "reason": "wrong-image",
-    "details": null,
-    "question": {
-      "id": "364e6edd-bb2c-4800-bf7c-c813f873b634",
-      "type": "character-species",
-      "prompt": "Quelle est l'espèce de Romska Palo Ul Laputa ?",
-      "image": null,
-      "choices": [
-        {
-          "id": "e2cfaa78-fb19-11eb-9a03-0242ac130003",
-          "label": "Dragon"
-        },
-        {
-          "id": "74b7f547-1577-4430-806c-c358c8b6bcf5",
-          "label": "Totoro"
-        },
-        {
-          "id": "603428ba-8a86-4b0b-a9f1-65df6abef3d3",
-          "label": "Cat"
-        },
-        {
-          "id": "af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
-          "label": "Human"
-        }
-      ],
-      "correctChoiceId": "af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
-      "correctChoiceLabel": "Human",
-      "reportContext": {
-        "generatedBy": "characterSpecies",
-        "character": {
-          "id": "abe886e7-30c8-4c19-aaa5-d666e60d14de",
-          "name": "Romska Palo Ul Laputa",
-          "species": "https://ghibliapi.vercel.app/species/af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
-          "speciesName": "Human"
-        },
-        "image": {
-          "source": "none",
-          "requestedCharacterName": "Romska Palo Ul Laputa",
-          "normalizedCharacterName": "romska palo ul laputa",
-          "requestedSpecies": "human",
-          "matchedCharacterName": null,
-          "exceptionJikanId": null,
-          "inspectedCandidates": 5
-        }
-      }
-    },
-    "gameplay": {
-      "questionIndex": 1,
-      "totalQuestions": 3,
-      "selectedChoiceId": null,
-      "answered": false,
-      "mode": "multiplayer",
-      "roomCode": "5FJQMV"
-    },
-    "reporter": {
-      "playerName": "ASTE",
-      "appRoute": "/game",
-      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 OPR/129.0.0.0"
-    },
-    "clientReportedAt": "2026-04-17T11:33:23.709Z"
-  },
-  {
     "id": "ce54fefc-3527-418c-9cde-4643eb6e8dae",
     "reportedAt": "2026-04-17T11:33:39.916Z",
     "reason": "wrong-image",
@@ -190,5 +62,197 @@
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36 OPR/129.0.0.0"
     },
     "clientReportedAt": "2026-04-17T11:33:39.912Z"
+  },
+  {
+    "id": "7a722290-0cb3-462d-ac83-8ee8fd6c3207",
+    "reportedAt": "2026-04-17T21:00:34.999Z",
+    "reason": "wrong-image",
+    "details": null,
+    "question": {
+      "id": "10e01b43-1db7-4fd5-ba06-2e784ace89ef",
+      "type": "character-species",
+      "prompt": "Quelle est l'espèce de Captain Dola ?",
+      "image": null,
+      "choices": [
+        {
+          "id": "af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
+          "label": "Human"
+        },
+        {
+          "id": "6bc92fdd-b0f4-4286-ad71-1f99fb4a0d1e",
+          "label": "Deer"
+        },
+        {
+          "id": "74b7f547-1577-4430-806c-c358c8b6bcf5",
+          "label": "Totoro"
+        },
+        {
+          "id": "b5a92d0e-5fb4-43d4-ba60-c012135958e4",
+          "label": "Spirit"
+        }
+      ],
+      "correctChoiceId": "af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
+      "correctChoiceLabel": "Human",
+      "reportContext": {
+        "generatedBy": "characterSpecies",
+        "character": {
+          "id": "3bc0b41e-3569-4d20-ae73-2da329bf0786",
+          "name": "Captain Dola",
+          "species": "https://ghibliapi.vercel.app/species/af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
+          "speciesName": "Human"
+        },
+        "image": {
+          "source": "none",
+          "requestedCharacterName": "Captain Dola",
+          "normalizedCharacterName": "captain dola",
+          "requestedSpecies": "human",
+          "matchedCharacterName": null,
+          "exceptionJikanId": null,
+          "inspectedCandidates": 25
+        }
+      }
+    },
+    "gameplay": {
+      "questionIndex": 1,
+      "totalQuestions": 5,
+      "selectedChoiceId": null,
+      "answered": false,
+      "mode": "multiplayer",
+      "roomCode": "L7Y19T"
+    },
+    "reporter": {
+      "playerName": "Joueur",
+      "appRoute": "/game",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0"
+    },
+    "clientReportedAt": "2026-04-17T21:00:34.990Z"
+  },
+  {
+    "id": "1c45af6b-49a2-4c33-b7a0-b42776ef2aff",
+    "reportedAt": "2026-04-17T21:00:44.915Z",
+    "reason": "wrong-image",
+    "details": null,
+    "question": {
+      "id": "52bc22c9-a173-4ffc-85f7-0275b1898571",
+      "type": "character-species",
+      "prompt": "Quelle est l'espèce de Chu Totoro ?",
+      "image": null,
+      "choices": [
+        {
+          "id": "f25fa661-3073-414d-968a-ab062e3065f7",
+          "label": "God"
+        },
+        {
+          "id": "af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
+          "label": "Human"
+        },
+        {
+          "id": "74b7f547-1577-4430-806c-c358c8b6bcf5",
+          "label": "Totoro"
+        },
+        {
+          "id": "e2cfaa78-fb19-11eb-9a03-0242ac130003",
+          "label": "Dragon"
+        }
+      ],
+      "correctChoiceId": "74b7f547-1577-4430-806c-c358c8b6bcf5",
+      "correctChoiceLabel": "Totoro",
+      "reportContext": {
+        "generatedBy": "characterSpecies",
+        "character": {
+          "id": "591524bc-04fe-4e60-8d61-2425e42ffb2a",
+          "name": "Chu Totoro",
+          "species": "https://ghibliapi.vercel.app/species/74b7f547-1577-4430-806c-c358c8b6bcf5",
+          "speciesName": "Totoro"
+        },
+        "image": {
+          "source": "none",
+          "requestedCharacterName": "Chu Totoro",
+          "normalizedCharacterName": "chu totoro",
+          "requestedSpecies": "totoro",
+          "matchedCharacterName": null,
+          "exceptionJikanId": null,
+          "inspectedCandidates": 25
+        }
+      }
+    },
+    "gameplay": {
+      "questionIndex": 3,
+      "totalQuestions": 5,
+      "selectedChoiceId": null,
+      "answered": false,
+      "mode": "multiplayer",
+      "roomCode": "L7Y19T"
+    },
+    "reporter": {
+      "playerName": "Joueur",
+      "appRoute": "/game",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0"
+    },
+    "clientReportedAt": "2026-04-17T21:00:44.912Z"
+  },
+  {
+    "id": "18b27c52-e0d6-46e3-923f-c698dee1a813",
+    "reportedAt": "2026-04-17T21:19:44.934Z",
+    "reason": "wrong-image",
+    "details": null,
+    "question": {
+      "id": "045c43e2-b7ff-400c-a927-ecb4ed0b7ae1",
+      "type": "character-species",
+      "prompt": "Quelle est l'espèce de Haku ?",
+      "image": "https://myanimelist.net/images/characters/8/517296.jpg",
+      "choices": [
+        {
+          "id": "603428ba-8a86-4b0b-a9f1-65df6abef3d3",
+          "label": "Cat"
+        },
+        {
+          "id": "e2cfaa78-fb19-11eb-9a03-0242ac130003",
+          "label": "Dragon"
+        },
+        {
+          "id": "af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
+          "label": "Human"
+        },
+        {
+          "id": "b5a92d0e-5fb4-43d4-ba60-c012135958e4",
+          "label": "Spirit"
+        }
+      ],
+      "correctChoiceId": "e2cfaa78-fb19-11eb-9a03-0242ac130003",
+      "correctChoiceLabel": "Dragon",
+      "reportContext": {
+        "generatedBy": "characterSpecies",
+        "character": {
+          "id": "267649ac-fb1b-11eb-9a03-0242ac130003",
+          "name": "Haku",
+          "species": "https://ghibliapi.vercel.app/species/e2cfaa78-fb19-11eb-9a03-0242ac130003",
+          "speciesName": "Dragon"
+        },
+        "image": {
+          "source": "name-match",
+          "requestedCharacterName": "Haku",
+          "normalizedCharacterName": "haku",
+          "requestedSpecies": "dragon",
+          "matchedCharacterName": "Haku",
+          "exceptionJikanId": null,
+          "inspectedCandidates": 25
+        }
+      }
+    },
+    "gameplay": {
+      "questionIndex": 3,
+      "totalQuestions": 5,
+      "selectedChoiceId": "af3910a6-429f-4c74-9ad5-dfe1c4aa04f2",
+      "answered": false,
+      "mode": "multiplayer",
+      "roomCode": "CLKBVS"
+    },
+    "reporter": {
+      "playerName": "Joueur",
+      "appRoute": "/game",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0"
+    },
+    "clientReportedAt": "2026-04-17T21:19:44.927Z"
   }
 ]

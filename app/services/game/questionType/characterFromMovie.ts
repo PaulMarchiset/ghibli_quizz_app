@@ -3,6 +3,11 @@ import { allCharacters } from '../../api/Characters';
 import { type GhibliCharacter, type GhibliMovie } from '../../types/ghibli';
 import { pickRandom, shuffleArray } from '../utils/random';
 
+/**
+ * Generates a quiz question where the player must identify a character from a randomly selected movie.
+ * @returns A promise resolving to an object containing the selected movie, the correct character answer, and a list of wrong character answers.
+ */
+
 export async function characterFromMovie() {
     const movies = await allMovies();
     const characters = await allCharacters();

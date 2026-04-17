@@ -1,13 +1,23 @@
+<script setup lang="ts">
+import LogoIcon from '~/components/Icons/LogoIcon.vue'
+</script>   
+
 <template>
     <div class="flex min-h-screen flex-col bg-gray-100 text-gray-900">
         <header class="sticky top-0 z-20 border-b border-gray-200 bg-white/90 backdrop-blur">
             <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-                <NuxtLink to="/" class="text-lg font-semibold tracking-tight">
-                    Studio Ghibli Quiz
-                </NuxtLink>
+                <div class="flex items-center gap-2">
+                    <LogoIcon class="h-10 w-10 shrink-0" aria-hidden="true" />
+                    <NuxtLink to="/" class="text-lg font-semibold tracking-tight">
+                        Studio Ghibli Quiz
+                    </NuxtLink>
+                </div>
                 <nav class="flex flex-wrap items-center gap-2 text-sm font-semibold">
                     <NuxtLink to="/game" class="nav-link rounded-full px-3 py-2" active-class="nav-link--active">
                         Jouer
+                    </NuxtLink>
+                    <NuxtLink to="/films" class="nav-link rounded-full px-3 py-2" active-class="nav-link--active">
+                        Films
                     </NuxtLink>
                     <NuxtLink to="/history" class="nav-link rounded-full px-3 py-2" active-class="nav-link--active">
                         Historique
