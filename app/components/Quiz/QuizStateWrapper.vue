@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import StateCard from './StateCard.vue'
+import StateCard from '../Shared/StateCard.vue'
 
 const props = defineProps<{
   loading: boolean

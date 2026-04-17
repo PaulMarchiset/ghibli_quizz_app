@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import ScorePanel from '~/components/ScorePanel.vue'
+import ScorePanel from './ScorePanel.vue'
 import type { RoomPlayer } from '~/composables/useGameRoom'
 
 const props = withDefaults(

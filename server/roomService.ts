@@ -71,6 +71,16 @@ export const roomService = {
     room.players.forEach(p => (p.score = 0))
   },
 
+  resetToLobby(room: Room, socketId: string) {
+    if (room.hostId !== socketId) throw new Error('Only host can reset room')
+
+    room.phase = 'lobby'
+    room.questions = []
+    room.questionSeconds = DEFAULT_TIME
+    room.answeredByQuestion = {}
+    room.players.forEach(p => (p.score = 0))
+  },
+
   submitQuestions(room: Room, socketId: string, questions: SharedQuizQuestion[], seconds: number) {
     if (room.hostId !== socketId) throw new Error('Only host')
     if (room.phase !== 'playing') throw new Error('Not playing')
@@ -81,6 +91,8 @@ export const roomService = {
   },
 
   answer(room: Room, socketId: string, questionId: string, choiceId: string) {
+    if (room.phase !== 'playing') throw new Error('Room is not in playing state')
+
     const player = room.players.find(p => p.id === socketId)
     if (!player) throw new Error('Player not found')
 
@@ -106,6 +118,7 @@ export const roomService = {
 
   leave(room: Room, socketId: string) {
     room.players = room.players.filter(p => p.id !== socketId)
+    roomStore.unbindSocket(socketId)
 
     if (room.players.length === 0) {
       roomStore.delete(room.code)
@@ -115,7 +128,5 @@ export const roomService = {
     if (room.hostId === socketId) {
       room.hostId = room.players[0].id
     }
-
-    roomStore.unbindSocket(socketId)
   }
 }

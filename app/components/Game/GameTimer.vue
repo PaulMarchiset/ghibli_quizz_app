@@ -10,10 +10,21 @@ const emit = defineEmits<{
 }>()
 
 const timeLeft = ref(props.totalSeconds)
-const interval = ref<number | null>(null)
+const interval = ref<number | ReturnType<typeof setInterval> | null>(null)
+
+watch(() => props.totalSeconds, (newTotal) => {
+ 
+  timeLeft.value = newTotal
+  
+  if (interval.value) {
+    clearInterval(interval.value)
+    interval.value = null
+  }
+  
+})
 
 const percentage = computed(() => (timeLeft.value / props.totalSeconds) * 100)
-const circumference = 2 * Math.PI * 34 // radius = 34 (matching the circle)
+const circumference = 2 * Math.PI * 34 // radius = 34
 
 const strokeDashoffset = computed(() => 
   circumference * (1 - percentage.value / 100)

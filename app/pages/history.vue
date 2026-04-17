@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import FilterBar from '../components/FilterBar.vue'
-import FormField from '../components/FormField.vue'
-import ScoreCard from '../components/ScoreCard.vue'
-import SortDirectionToggle from '../components/SortDirectionToggle.vue'
-import StateCard from '../components/StateCard.vue'
-import StateMessage from '../components/StateMessage.vue'
+import FilterBar from '../components/Filters/FilterBar.vue'
+import FormField from '../components/Shared/FormField.vue'
+import ScoreCard from '../components/Shared/ScoreCard.vue'
+import SortDirectionToggle from '../components/Shared/SortDirectionToggle.vue'
+import StateCard from '../components/Shared/StateCard.vue'
+import StateMessage from '../components/Shared/StateMessage.vue'
 import { useScoreHistory } from '../composables/useScoreHistory'
 import { useSortDirection } from '../composables/useSortDirection'
 

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import FilmCard from '~/components/Films/FilmCard.vue'
-import FilterBar from '~/components/FilterBar.vue'
-import FormField from '~/components/FormField.vue'
-import SortDirectionToggle from '~/components/SortDirectionToggle.vue'
-import StateCard from '~/components/StateCard.vue'
-import StateMessage from '~/components/StateMessage.vue'
+import FilterBar from '~/components/Filters/FilterBar.vue'
+import FormField from '~/components/Shared/FormField.vue'
+import SortDirectionToggle from '~/components/Shared/SortDirectionToggle.vue'
+import StateCard from '~/components/Shared/StateCard.vue'
+import StateMessage from '~/components/Shared/StateMessage.vue'
 import { useFilms } from '~/composables/useFilms'
 
 const {

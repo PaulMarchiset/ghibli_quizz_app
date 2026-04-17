@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import GameTimer from './GameTimer.vue'
-import LeaderboardList from './LeaderboardList.vue'
-import ScorePanel from './ScorePanel.vue'
+import GameTimer from '../Game/GameTimer.vue'
+import LeaderboardList from '../Shared/LeaderboardList.vue'
+import ScorePanel from '../Shared/ScorePanel.vue'
 import type { RoomPlayer } from '~/composables/useGameRoom'
 
 const props = withDefaults(

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import ReportIcon from './Icons/ReportIcon.vue'
+import ReportIcon from '../Icons/ReportIcon.vue'
 
 type Choice = {
   id: string

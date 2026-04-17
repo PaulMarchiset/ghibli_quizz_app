@@ -3,7 +3,7 @@
     import { useNuxtApp } from "#app";
 
     const { $socket } = useNuxtApp();
-    let messages = "No messages yet.";
+    const messages = ref("Connecting to socket...");
 
     onMounted(() => {
         // Check if socket is available
@@ -13,14 +13,14 @@
             // Listen for events from the backend
             $socket.on("message", (channel, data) => {
                 console.log("Received message:", data);
-                messages = data;
+                messages.value = data;
             });
 
             // Emit an event to the backend
             $socket.emit("joinRoom", { room: "general" });
         } else {
             console.error("Socket is not available.");
-            messages = "Socket is not available.";
+            messages.value = "Socket is not available.";
         }
     });
 

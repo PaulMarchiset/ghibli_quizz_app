@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import CopyIcon from './Icons/CopyIcon.vue'
-import { useGameRoom } from '../composables/useGameRoom'
-import { useGameSettings } from '../composables/useGameSettings'
+import CopyIcon from '../Icons/CopyIcon.vue'
+import { useGameRoom } from '../../composables/useGameRoom'
+import { useGameSettings } from '../../composables/useGameSettings'
 
 const props = withDefaults(defineProps<{ showSettings?: boolean }>(), {
   showSettings: true

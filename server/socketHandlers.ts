@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io'
 import { roomService } from './roomService'
 import { roomStore } from './roomStore'
-import { requireRoomCode } from './roomValidation'
+import { requireRoomCode, validateQuestions } from './roomValidation'
 
 function roomState(room: any) {
   return {
@@ -47,6 +47,60 @@ export function registerHandlers(io: Server, socket: Socket) {
     }
   })
 
+  socket.on('game:start', (payload, cb) => {
+    try {
+      const code = requireRoomCode(payload?.roomCode)
+      const room = roomStore.get(code)
+      if (!room) throw new Error('Room not found')
+
+      roomService.startGame(room, socket.id)
+
+      cb?.({ ok: true })
+      io.to(code).emit('game:state', roomState(room))
+    } catch (e: any) {
+      cb?.({ ok: false, message: e.message })
+    }
+  })
+
+  socket.on('game:reset', (payload, cb) => {
+    try {
+      const code = requireRoomCode(payload?.roomCode)
+      const room = roomStore.get(code)
+      if (!room) throw new Error('Room not found')
+
+      roomService.resetToLobby(room, socket.id)
+
+      cb?.({ ok: true })
+      io.to(code).emit('game:state', roomState(room))
+    } catch (e: any) {
+      cb?.({ ok: false, message: e.message })
+    }
+  })
+
+  socket.on('game:questions', (payload, cb) => {
+    try {
+      const code = requireRoomCode(payload?.roomCode)
+      const room = roomStore.get(code)
+      if (!room) throw new Error('Room not found')
+      if (!validateQuestions(payload?.questions)) throw new Error('Invalid questions payload')
+
+      const questionSeconds = Number(payload?.questionSeconds)
+      if (!Number.isFinite(questionSeconds) || questionSeconds < 1) {
+        throw new Error('Invalid question timer')
+      }
+
+      roomService.submitQuestions(room, socket.id, payload.questions, questionSeconds)
+
+      cb?.({ ok: true })
+      io.to(code).emit('game:questions', {
+        questions: room.questions,
+        questionSeconds: room.questionSeconds
+      })
+    } catch (e: any) {
+      cb?.({ ok: false, message: e.message })
+    }
+  })
+
   socket.on('game:answer', (payload, cb) => {
     try {
       const code = requireRoomCode(payload?.roomCode)
@@ -71,6 +125,26 @@ export function registerHandlers(io: Server, socket: Socket) {
     }
   })
 
+  socket.on('game:leave', (payload, cb) => {
+    try {
+      const code = requireRoomCode(payload?.roomCode)
+      const room = roomStore.get(code)
+      if (!room) throw new Error('Room not found')
+
+      roomService.leave(room, socket.id)
+      socket.leave(code)
+
+      cb?.({ ok: true })
+
+      const currentRoom = roomStore.get(code)
+      if (currentRoom) {
+        io.to(code).emit('game:state', roomState(currentRoom))
+      }
+    } catch (e: any) {
+      cb?.({ ok: false, message: e.message })
+    }
+  })
+
   socket.on('disconnect', () => {
     const code = roomStore.getRoomBySocket(socket.id)
     if (!code) return
@@ -79,6 +153,10 @@ export function registerHandlers(io: Server, socket: Socket) {
     if (!room) return
 
     roomService.leave(room, socket.id)
-    io.to(code).emit('game:state', roomState(room))
+
+    const currentRoom = roomStore.get(code)
+    if (currentRoom) {
+      io.to(code).emit('game:state', roomState(currentRoom))
+    }
   })
 }

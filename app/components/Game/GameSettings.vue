@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import SettingsIcon from './Icons/SettingsIcon.vue'
-import { useGameSettings, type GameSettings } from '../composables/useGameSettings'
-import { QUESTION_TYPE_KEYS, type QuestionTypeKey } from '../services/game/quizGame'
+import SettingsIcon from '../Icons/SettingsIcon.vue'
+import { useGameSettings, type GameSettings } from '../../composables/useGameSettings'
+import { QUESTION_TYPE_KEYS, type QuestionTypeKey } from '../../services/game/quizGame'
 
 const settings = useGameSettings()
 const draftSettings = reactive<GameSettings>({ ...settings.value })

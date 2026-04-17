@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import GameTimer from './GameTimer.vue'
+import GameTimer from '../Game/GameTimer.vue'
 import QuizCard from './QuizCard.vue'
 import type { QuizQuestion as QuizQuestionType } from '~/services/game/quizGame'
 

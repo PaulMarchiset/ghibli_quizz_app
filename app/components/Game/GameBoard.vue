@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useGameSettings } from '../composables/useGameSettings'
-import { useScoreHistory } from '../composables/useScoreHistory'
-import { useLeaderboardSort } from '../composables/useLeaderboardSort'
-import { useQuestionReporting } from '../composables/useQuestionReporting'
-import { useQuizGame } from '../composables/useQuizGame'
-import { useQuizMultiplayer } from '../composables/useQuizMultiplayer'
-import { QUESTION_TYPE_KEYS, QUESTION_TYPE_LABELS } from '../services/game/quizGame'
+import { useGameSettings } from '../../composables/useGameSettings'
+import { useScoreHistory } from '../../composables/useScoreHistory'
+import { useLeaderboardSort } from '../../composables/useLeaderboardSort'
+import { useQuestionReporting } from '../../composables/useQuestionReporting'
+import { useQuizGame } from '../../composables/useQuizGame'
+import { useQuizMultiplayer } from '../../composables/useQuizMultiplayer'
+import { QUESTION_TYPE_KEYS, QUESTION_TYPE_LABELS } from '../../services/game/quizGame'
 
-import QuizEndScreen from './QuizEndScreen.vue'
-import QuizLayout from './QuizLayout.vue'
-import QuizQuestion from './QuizQuestion.vue'
-import QuizSidebar from './QuizSidebar.vue'
-import QuizStateWrapper from './QuizStateWrapper.vue'
+import QuizEndScreen from '../Quiz/QuizEndScreen.vue'
+import QuizLayout from '../Quiz/QuizLayout.vue'
+import QuizQuestion from '../Quiz/QuizQuestion.vue'
+import QuizSidebar from '../Quiz/QuizSidebar.vue'
+import QuizStateWrapper from '../Quiz/QuizStateWrapper.vue'
 
 const settings = useGameSettings()
 const scoreHistory = useScoreHistory()
