@@ -1,5 +1,5 @@
 import { computed, ref, watch } from 'vue'
-import { useGameRoom } from '~/composables/useGameRoom'
+import { useGameRoom, type RoomPlayer } from '~/composables/useGameRoom'
 import {
   checkAnswer,
   generateQuiz,
@@ -25,13 +25,15 @@ export function useQuizMultiplayer(quiz: QuizGameController) {
   const gameRoom = useGameRoom()
   const waitingForSharedQuestions = ref(false)
   const lastHandledAdvanceQuestionId = ref<string | null>(null)
+  const lastPlayers = ref<RoomPlayer[]>([])
 
   const inMultiplayerRoom = computed(
     () => !!gameRoom.roomCode.value && gameRoom.phase.value === 'playing'
   )
-  const leaderboardItems = computed(() =>
-    inMultiplayerRoom.value ? gameRoom.players.value : []
-  )
+  const leaderboardItems = computed(() => {
+    if (!gameRoom.roomCode.value) return []
+    return gameRoom.players.value.length > 0 ? gameRoom.players.value : lastPlayers.value
+  })
   const sharedQuestionSeconds = computed(() => gameRoom.sharedQuestionSeconds.value)
   const roomCode = computed(() => gameRoom.roomCode.value)
 
@@ -137,6 +139,25 @@ export function useQuizMultiplayer(quiz: QuizGameController) {
       if (!quiz.question.value || quiz.question.value.id !== questionId) return
 
       handleAdvanceQuestion(questionId)
+    }
+  )
+
+  watch(
+    () => gameRoom.players.value,
+    (players) => {
+      if (players.length > 0) {
+        lastPlayers.value = [...players]
+      }
+    },
+    { immediate: true }
+  )
+
+  watch(
+    () => gameRoom.roomCode.value,
+    (code) => {
+      if (!code) {
+        lastPlayers.value = []
+      }
     }
   )
 

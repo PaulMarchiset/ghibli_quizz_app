@@ -2,6 +2,7 @@
 import { computed, nextTick, watch } from 'vue'
 import { useGameRoom } from '../composables/useGameRoom'
 import { useLeaderboardSort } from '../composables/useLeaderboardSort'
+import ScorePanel from '../components/Shared/ScorePanel.vue'
 
 const { roomState, phase, isHost, players } = useGameRoom()
 
@@ -38,17 +39,17 @@ const showSettings = computed(() => {
 })
 
 const lobbyMessage = computed(() => {
-  if (!roomState.value) return 'Create or join a room to start.'
+  if (!roomState.value) return 'Crée une salle de jeu pour jouer.'
 
   if (showEndedSummary.value) {
     return isHost.value
-      ? 'You can edit settings, create a new game, then start when everyone is ready.'
-      : 'Waiting for the host to configure and start a new game.'
+      ? 'Tu peux configurer les paramètres et démarrer une nouvelle partie.'
+      : 'En attente du chef pour configurer et démarrer une nouvelle partie.'
   }
 
   return isHost.value
-    ? 'Configure settings and start the game when everyone is ready.'
-    : 'Wait for the host to start the game.'
+    ? 'Configure les paramètres et démarre la partie.'
+    : 'En attente du chef pour démarrer la partie.'
 })
 
 watch(

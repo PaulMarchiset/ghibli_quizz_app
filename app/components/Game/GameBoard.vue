@@ -13,6 +13,7 @@ import QuizLayout from '../Quiz/QuizLayout.vue'
 import QuizQuestion from '../Quiz/QuizQuestion.vue'
 import QuizSidebar from '../Quiz/QuizSidebar.vue'
 import QuizStateWrapper from '../Quiz/QuizStateWrapper.vue'
+import LeaderboardList from '../Shared/LeaderboardList.vue'
 
 const settings = useGameSettings()
 const scoreHistory = useScoreHistory()
@@ -53,7 +54,8 @@ const {
   waitingForSharedQuestions,
   inMultiplayerRoom,
   mySharedScore,
-  sharedQuestionSeconds
+  sharedQuestionSeconds,
+  roomCode
 } = multiplayer
 
 const { sortedItems } = leaderboardSort
@@ -84,7 +86,7 @@ const reporting = useQuestionReporting({
   answered: quiz.answered,
   playerName,
   inMultiplayerRoom: multiplayer.inMultiplayerRoom,
-  roomCode: multiplayer.roomCode
+  roomCode
 })
 
 const { reportingIssue, reportFeedback } = reporting
@@ -140,6 +142,19 @@ onMounted(() => {
         :totalQuestions="questions.length"
         @replay="startGame"
       />
+
+      <div
+        v-if="finished && roomCode"
+        class="mx-auto w-full max-w-xl space-y-3 rounded-3xl bg-white p-6 text-gray-800 shadow-sm"
+      >
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h3 class="text-lg font-semibold text-gray-900">Classement final</h3>
+          <span class="text-sm text-gray-600">{{ sortedItems.length }} joueur(s)</span>
+        </div>
+
+        <LeaderboardList v-if="sortedItems.length" :items="sortedItems" />
+        <p v-else class="text-sm text-gray-600">No players in the room.</p>
+      </div>
 
       <QuizLayout v-else-if="question">
         <template #main>

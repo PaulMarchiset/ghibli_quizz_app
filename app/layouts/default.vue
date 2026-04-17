@@ -34,6 +34,7 @@ import LogoIcon from '~/components/Icons/LogoIcon.vue'
             <div class="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-6 text-sm text-gray-600 sm:px-6">
                 <p class="font-semibold text-gray-900">Studio Ghibli Quiz</p>
                 <p>Quiz multijoueur sur l'univers de Studio Ghibli. Les données viennent des APIs Ghibli et Jikan</p>
+                <p>Par un fan du studio Ghibli, qui voulait faire un jeu (un peu) difficile</p>
             </div>
         </footer>
     </div>
